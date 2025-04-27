@@ -1,0 +1,24 @@
+Rules:
+    - Unquoted variables are expanded directly
+    - $? is replaced with the exit status of the last command
+    - Double quotes allow expansion
+    - Single quotes prevent expansion
+    - Double quotes allow expansion but preserve spaces
+    - Single quotes preserve everything literally
+    - Adjacent variables are concatenated
+    - Braces help define variable name boundaries
+    - Word splitting occurs on unquoted expansions
+    - Variables expand in redirection filenames
+    - Quote context affects expansion within the token
+    - if we have Double quotes and in side we have Single quotes it will expan inside the Single quotes
+    - if we have Single quotes and in side we have Double quotes it will not expan inside the Double quotes
+    - if we have Variables next to each other we will join the value of theme 
+    - if we have Variables next to text it will print empty or a newline
+    - if we have Variables in this mode {} next to text it will print the value joined with the text
+
+
+
+
+
+
+

@@ -1,0 +1,32 @@
+Error Cases for All Redirection Operators
+1. Missing Filename/Delimiter
+For >, <, and >> and << :
+$ command >
+$ command <
+$ command >>    
+$ command <<
+Error Message: syntax error near unexpected token `newline'
+How to Check:
+
+    After finding a redirection token, check if there is a next token
+    If there is no next token or the next token is not a valid word, it's an error
+
+
+
+this func name is check_for_Redirection it will return the number of Redirection
+
+int i = 0
+int count = 0;
+
+if (linked_list != NULL && linked_list->token != pipe_token)
+{
+    while (linked_list->DATA[i] != null)
+    {
+        if (linked_list->DATA[i] == '>' or linked_list->DATA[i] == '<')
+            count++;
+        else if (linked_list->DATA[i] == '>>' or linked_list->DATA[i] == '<<')
+            count++;
+        i++;
+    }
+
+}

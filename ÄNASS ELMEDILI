@@ -1,0 +1,31 @@
+total 3668
+drwxr-xr-x  7 anel-men 2024_khouribga    4096 Apr 23 11:08 .
+drwx------ 23 anel-men 2024_khouribga    4096 Apr 23 09:35 ..
+-rw-r--r--  1 anel-men 2024_khouribga       0 Apr 23 11:07 ÄNASS
+-rw-r--r--  1 anel-men 2024_khouribga       0 Apr 23 11:08 ÄNASS ELMEDILI
+-rwxr-xr-x  1 anel-men 2024_khouribga   50792 Apr 21 10:33 a.out
+drwxr-xr-x  3 anel-men 2024_khouribga      22 Apr 21 10:33 a.out.dSYM
+-rw-r--r--  1 anel-men 2024_khouribga    6148 Apr 21 10:33 .DS_Store
+-rw-r--r--  1 anel-men 2024_khouribga 1568461 Apr 21 10:33 en.subject.pdf
+-rw-r--r--  1 anel-men 2024_khouribga    2340 Apr 22 16:24 env.c
+-rw-r--r--  1 anel-men 2024_khouribga    2226 Apr 21 10:33 env_helper.c
+-rw-r--r--  1 anel-men 2024_khouribga    2421 Apr 22 16:12 expand.c
+-rw-r--r--  1 anel-men 2024_khouribga    2578 Apr 23 10:32 expand_helper_0.c
+-rw-r--r--  1 anel-men 2024_khouribga     514 Apr 22 16:14 expand_helper_1.c
+-rw-r--r--  1 anel-men 2024_khouribga     993 Apr 22 16:21 ft_itoa.c
+drwxr-xr-x  8 anel-men 2024_khouribga     185 Apr 23 09:45 .git
+-rw-r--r--  1 anel-men 2024_khouribga    4430 Apr 23 10:34 lexer.c
+-rw-r--r--  1 anel-men 2024_khouribga    2189 Apr 21 10:33 lexer_helper_0.c
+-rw-r--r--  1 anel-men 2024_khouribga    2026 Apr 21 10:33 lexer_helper_1.c
+-rwxr-xr-x  1 anel-men 2024_khouribga   30416 Apr 23 10:34 minishell
+-rw-r--r--  1 anel-men 2024_khouribga 2021347 Apr 21 10:33 minishell correction.mhtml
+drwxr-xr-x  3 anel-men 2024_khouribga      22 Apr 21 10:33 minishell.dSYM
+-rw-r--r--  1 anel-men 2024_khouribga    5103 Apr 23 10:27 minishell.h
+-rw-r--r--  1 anel-men 2024_khouribga    6701 Apr 21 10:33 parser.c
+-rw-r--r--  1 anel-men 2024_khouribga     662 Apr 23 11:07 parserv1.5.c
+-rw-r--r--  1 anel-men 2024_khouribga    1302 Apr 23 10:34 parsing_main.c
+-rw-r--r--  1 anel-men 2024_khouribga    2657 Apr 21 10:33 syntx_check.c
+-rw-r--r--  1 anel-men 2024_khouribga    3316 Apr 21 10:33 syntx_check_helper_0.c
+-rw-r--r--  1 anel-men 2024_khouribga    1140 Apr 21 10:33 syntx_check_helper_1.c
+drwxr-xr-x  2 anel-men 2024_khouribga     275 Apr 21 10:33 txt_files
+drwxr-xr-x  2 anel-men 2024_khouribga      27 Apr 21 10:33 .vscode

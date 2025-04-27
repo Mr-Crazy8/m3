@@ -1,0 +1,41 @@
+in the exucut part if i send this:
+command: "sort"
+args: ["sort", NULL]
+infile: "unsorted.txt"
+heredoc: 0
+outfile: "sorted.txt"
+append: 0
+pipe_out: 0
+next: NULL 
+
+i shoud allwes start with the infile if there is or same time i should start with outfile ? 
+
+
+
+and can you pls explain how to handle this type of input and can you explain what it do in bash :
+
+
+"ls -la > file1 > file2 > file3 > file4"
+
+and this 
+
+"ls -la > file1 > file2 >> file3 > file4"
+
+and this :
+
+"ls -la > file1 > file2 >> file3"
+
+
+and this :
+
+"ls -la > file1 > file2 >> file3 << file4"
+
+
+and this : 
+
+"ls -la > file1 > file2 >> file3 > file4"
+
+
+and can you pls give me examples like that with details explain
+
+

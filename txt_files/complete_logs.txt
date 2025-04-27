@@ -1,0 +1,19 @@
+grep "error" > filtered_errors.txt < complete_logs.txt
+grep "error" < complete_logs.txt > filtered_errors.txt
+
+
+grep "error" >> filtered_errors.txt < complete_logs.txt
+grep "error" < complete_logs.txt >> filtered_errors.txt
+
+
+
+grep "error" > filtered_errors.txt << complete_logs.txt
+grep "error" << complete_logs.txt > filtered_errors.txt
+
+grep "error" >> filtered_errors.txt << complete_logs.txt
+grep "error" << complete_logs.txt >> filtered_errors.txt
+
+
+
+
+comand | comand | comand | comand

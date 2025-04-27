@@ -1,0 +1,325 @@
+do you mean like this this is a samll algo that i write :
+
+first read input
+loop inside the input and procces character by character
+each character joined with the next one using ft_strjoin tell you see
+any of this withspace or | or > < or >> or << or $ or any specail character
+in case you see a specail character you stop joinein and then creat a node that
+have the value that we joined and the tokin type have then contuine were you stop befor
+you creat the node and repait tell noting left in case you find a specail character creat a node for it 
+and give it the toking type
+
+
+
+in case you find your a " swith to the func that tokinzing quotes so 
+every thing inside the " " will have a signal toking and after you find the second " you will go back the normal handle
+the same goes about ' it will have it own handle
+
+
+
+
+
+
+
+
+can you pls improve this algo but dont change it struct and explain to me everthing that you improve or add  :
+while input not empty 
+    check if this character is " or '
+            start form the index of the quotes
+            and keep movin tell you find the second paires of the same quotes type 
+            and check after the same quotes type  if there any space
+            if there ant space stop if not keep movin
+            tell you find a space or the same quotes type  that have after withspace
+            if you finish creat a node that have the value of data and tokin type 
+            and save the index and returnt
+    if it not " or '
+            start reading character by character 
+            and stor every character in a buffer
+            if you find any specail character stop
+            wen you stop creat a node that have the 
+            value of data and tokin type
+            after you stop contuine from were you stop 
+            after you creat your node
+            then creat the node for the specail character
+            that have the value and the tokin type
+            specail character are withspace or | or > < or >> or << or $ 
+            and more
+
+        
+
+******************************************************************
+*       Complete Algorithm (Simplified Pseudocode)               *
+******************************************************************         
+* current_position = 0                                           *   
+* token_list = empty list                                        *   
+*                                                                *   
+* while current_position < input_length:                         *   
+*    current_char = input[current_position]                      *   
+*                                                                *   
+*    # Case 1: Handle quotes                                     *   
+*   if current_char is ' or ":                                   *
+*        handle quoted string                                    *   
+*       add token to token_list                                  *   
+*                                                                *   
+*   # Case 2: Handle spaces                                      *
+*   else if current_char is a space:                             *
+*       current_position++ (skip space)                          *
+*                                                                *
+*   # Case 3: Handle operators                                   *   
+*   else if current_char is an operator character:               *
+*       check for multi-character operators                      *   
+*       create appropriate operator token                        *   
+*       add token to token_list                                  *   
+*                                                                *   
+*   # Case 4: Handle regular words                               *   
+*   else:                                                        *   
+*       collect characters until space or special character      *
+*       create word token                                        *   
+*       add token to token_list                                  *   
+*                                                                *
+* return token_list                                              *    
+******************************************************************
+
+
+
+
+
+
+
+
+
+***********************************************************
+* Special Character Recognition                           *  
+***********************************************************
+* if current character is '>' and next character is '>':  *
+*    create_token(">>", "append_out_tokin")               *      
+*   current_position += 2                                 *  
+* else if current character is '>':                       *  
+*   create_token(">", "redir_out_tokin")                  *
+*    current_position++                                   *   
+***********************************************************
+
+
+
+***********************************************************************************
+* Word Building                                                                   *      
+***********************************************************************************
+* # Starting a word                                                               *  
+* start_position = current_position                                               *  
+* while current_position < input_length and                                       *  
+*      character at current_position is not a space and                           *  
+*     character at current_position is not a special character:                   *      
+*    current_position++                                                           *  
+*                                                                                 *  
+* # Create word token from characters between start_position and current_position *
+*if current_position > start_position:                                            *  
+*    create_token(input[start_position:current_position], "word_tokin")           *
+***********************************************************************************
+
+
+*************************************************************************************************
+* Quote Handling                                                                                *
+*************************************************************************************************
+* if character at current_position is a quote (either ' or "):                                  *
+*    quote_type = character at current_position                                                 *
+*    start_position = current_position                                                          *
+*    current_position++ (move past opening quote)                                               *
+*                                                                                               *
+*    # Find closing quote                                                                       *
+*    while current_position < input_length and character at current_position != quote_type:     *
+*        current_position++                                                                     *
+*                                                                                               *
+*    if current_position >= input_length:                                                       *
+*        # Error: unclosed quote                                                                *
+*                                                                                               *
+*   end_position = current_position                                                             *
+*    current_position++ (move past closing quote)                                               *
+*                                                                                               *
+*    # Create token from start_position+1 to end_position-1                                     *
+*    create_token(input[start_position+1:end_position], "quoted_word_tokin")                    *
+**************************************************************************************************
+
+
+
+
+
+*************************************************************************************************************
+* Tokenizing Algorithm (Pseudocode)                                                                         *
+*************************************************************************************************************
+* current_position = 0                                                                                      *
+* token_list = empty list                                                                                   *
+*                                                                                                           *
+* while current_position < input_length:                                                                    *
+*    current_char = input[current_position]                                                                 *
+*                                                                                                           *
+*    # Case 1: Handle quotes (' or ")                                                                       *
+*    if current_char is ' or ":                                                                             *
+*        quote_type = current_char                                                                          *
+*       start_position = current_position                                                                   *
+*        current_position++ (move past opening quote)                                                       *
+*                                                                                                           *
+*        # Find matching closing quote                                                                      *
+*        while current_position < input_length and input[current_position] != quote_type:                   *
+*            current_position++                                                                             *
+*                                                                                                           *
+*        if current_position >= input_length:                                                               *
+*            # Error: unclosed quote                                                                        *
+*            report error "Unclosed quote"                                                                  *
+*            return error                                                                                   *
+*                                                                                                           *
+*        # We found the closing quote                                                                       *
+*        token_content = input[start_position+1:current_position]                                           *
+*        current_position++ (move past closing quote)                                                       *
+*                                                                                                           *
+*        create_token(token_content, "word_tokin")                                                          *
+*        add token to token_list                                                                            *
+*                                                                                                           *
+*    # Case 2: Not a quote                                                                                  *
+*    else:                                                                                                  *
+*        # Start collecting characters for a regular word                                                   *
+*        start_position = current_position                                                                  *
+*        buffer = empty string                                                                              *
+*                                                                                                           *
+*        # Collect until special character                                                                  *
+*       while current_position < input_length:                                                              *
+*            if input[current_position] is ' or is special character:                                       *
+*                break                                                                                      *
+*            add input[current_position] to buffer                                                          *
+*            current_position++                                                                             *
+*                                                                                                           *
+*        # If we collected anything, create a token                                                         *
+*        if buffer is not empty:                                                                            *
+*            create_token(buffer, "word_tokin")                                                             *
+*            add token to token_list                                                                        *
+*                                                                                                           *
+*        # Now handle the special character that made us stop                                               *
+*        if current_position < input_length:                                                                *
+*           if input[current_position] is space:                                                            *
+*                current_position++ (skip space)                                                            *
+*            else if input[current_position] is special character:                                          *
+*                # Check for multi-character operators                                                      *
+*                if input[current_position] is '>' and input[current_position+1] is '>':                    *
+*                    create_token(">>", "append_out_tokin")                                                 *
+*                    current_position += 2                                                                  *
+*                else if input[current_position] is '<' and input[current_position+1] is '<':               *
+*                    create_token("<<", "heredoc_tokin")                                                    *
+*                    current_position += 2                                                                  *
+*                else:                                                                                      *
+*                   # Single character operator                                                             *
+*                    operator_char = input[current_position]                                                *
+*                                                                                                           *
+*                    if operator_char is '|':                                                               *
+*                        create_token("|", "pipe_tokin")                                                    *
+*                    else if operator_char is '>':                                                          *
+*                        create_token(">", "redir_out_tokin")                                               *
+*                    else if operator_char is '<':                                                          *
+*                        create_token("<", "redir_in_tokin")                                                *
+*                    else:                                                                                  *
+*                        create_token(operator_char, "special_tokin")                                       *
+*                                                                                                           *
+*                    current_position++                                                                     *
+*                                                                                                           *
+*                add token to token_list                                                                    *
+*                                                                                                           *
+* return token_list                                                                                         *
+*************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+*************************************************************************************************************
+* Tokenizing Algorithm (Pseudocode)                                                                         *
+*************************************************************************************************************
+* current_position = 0                                                                                      *
+* token_list = empty list                                                                                   *
+*                                                                                                           *
+* while current_position < input_length:                                                                    *
+*    current_char = input[current_position]                                                                 *
+*                                                                                                           *
+*    # Case 1: Handle quotes (' or ")                                                                       *
+*    if current_char is ' or ":                                                                             *
+*        quote_type = current_char                                                                          *
+*        start_position = current_position                                                                  *
+*        current_position++ (move past opening quote)                                                       *
+*                                                                                                           *
+*        # Find matching closing quote                                                                      *
+*        while current_position < input_length:                                                             *
+*            if input[current_position] == quote_type:                                                      *
+*                # Check if it's the closing quote                                                          *
+*                if current_position + 1 < input_length and input[current_position + 1] == quote_type:      *
+*                    # It's an escaped quote, skip it                                                       *
+*                    current_position += 2                                                                  *
+*                else:                                                                                      *
+*                    break                                                                                  *
+*            else:                                                                                          *
+*                current_position++                                                                         *
+*                                                                                                           *
+*        if current_position >= input_length:                                                               *
+*            # Error: unclosed quote                                                                        *
+*            report error "Unclosed quote"                                                                  *
+*            return error                                                                                   *
+*                                                                                                           *
+*        # We found the closing quote                                                                       *
+*        token_content = input[start_position+1:current_position]                                           *
+*        current_position++ (move past closing quote)                                                       *
+*                                                                                                           *
+*        create_token(token_content, "word_token")                                                          *
+*        add token to token_list                                                                            *
+*                                                                                                           *
+*    # Case 2: Not a quote                                                                                  *
+*    else:                                                                                                  *
+*        # Start collecting characters for a regular word                                                   *
+*        start_position = current_position                                                                  *
+*        buffer = empty string                                                                              *
+*                                                                                                           *
+*        # Collect until special character                                                                  *
+*        while current_position < input_length:                                                             *
+*            if input[current_position] is ' or is special character:                                       *
+*                break                                                                                      *
+*            add input[current_position] to buffer                                                          *
+*            current_position++                                                                             *
+*                                                                                                           *
+*        # If we collected anything, create a token                                                         *
+*        if buffer is not empty:                                                                            *
+*            create_token(buffer, "word_token")                                                             *
+*            add token to token_list                                                                        *
+*                                                                                                           *
+*        # Now handle the special character that made us stop                                               *
+*        if current_position < input_length:                                                                *
+*           if input[current_position] is space:                                                            *
+*                current_position++ (skip space)                                                            *
+*            else if input[current_position] is special character:                                          *
+*                # Check for multi-character operators                                                      *
+*                if input[current_position] is '>' and input[current_position+1] is '>':                    *
+*                    create_token(">>", "append_out_token")                                                 *
+*                    current_position += 2                                                                  *
+*                else if input[current_position] is '<' and input[current_position+1] is '<':               *
+*                    create_token("<<", "heredoc_token")                                                    *
+*                    current_position += 2                                                                  *
+*                else:                                                                                      *
+*                   # Single character operator                                                             *
+*                    operator_char = input[current_position]                                                *
+*                                                                                                           *
+*                    if operator_char is '|':                                                               *
+*                        create_token("|", "pipe_token")                                                    *
+*                    else if operator_char is '>':                                                          *
+*                        create_token(">", "redir_out_token")                                               *
+*                    else if operator_char is '<':                                                          *
+*                        create_token("<", "redir_in_token")                                                *
+*                    else:                                                                                  *
+*                        create_token(operator_char, "special_token")                                       *
+*                                                                                                           *
+*                    current_position++                                                                     *
+*                                                                                                           *
+*                add token to token_list                                                                    *
+*                                                                                                           *
+* return token_list                                                                                         *
+*************************************************************************************************************

@@ -1,0 +1,1029 @@
+1. Environment Variable Expansion ($VAR)
+
+    Basic Syntax: $VAR or ${VAR}
+    Behavior:
+        Must replace $VAR with the value from environment
+        If variable doesn't exist, replace with empty string
+        Must work in command arguments: echo $USER → prints your username
+        Must expand variables in command paths: $PATH/ls (if valid)
+**********************************************************************************
+2. Exit Status Expansion ($?)
+
+    Syntax: $?
+    Behavior:
+        Must replace with exit status of most recently executed foreground command
+        Values are 0-255 (0 for success, non-zero for failure)
+        Must work in any command context: echo $?, if [ $? -eq 0 ], etc.
+***************************************************************************************
+3. Quote Handling Rules
+Double Quotes (")
+
+    Variables ARE expanded inside double quotes: echo "$USER" → prints username
+    Special characters lose meaning inside double quotes: echo "| > <" → prints | > < literally
+    Exception: $ still performs expansion
+
+Single Quotes (')
+
+    NO expansions inside single quotes (literal interpretation)
+    echo '$USER' → prints $USER literally
+    echo 'anything $? | > < here' → prints everything literally
+************************************************************************************************
+4. Quote and Variable Interaction
+
+    Variables without quotes undergo word splitting after expansion
+        If $VAR="hello world", then echo $VAR produces two arguments: hello and world
+    Variables inside double quotes preserve spaces
+        If $VAR="hello world", then echo "$VAR" produces: hello world
+****************************************************************************************************
+5. Handling Edge Cases
+
+    Empty variables: $NONEXISTENT → replaced with empty string
+    Adjacent variables: $USER$HOME → concatenated values
+    Partially quoted variables: "$USER"'s home' → expand only the $USER part
+    Variables at end of words: abc$USER → concatenated with "abc"
+***************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**************************************************************************
+Phase 1: Develop an Independent Expansion Processor
+1.1 Create a Post-Lexing Expansion Function
+
+    Build a standalone function that processes tokens after they're created
+    Input: Your existing token list after lexical analysis
+    Output: A new or modified token list with expansions applied
+
+
+    Step 1: Design the Expansion Function Interface
+
+        Purpose: Process your token list after lexical analysis to handle all variable expansions
+        Positioning: Insert this function between your syntax validation and command table construction
+        Parameters: It should take your token list and environment structure as inputs
+        Return Value: Either a modified version of the original token list or a completely new token list
+
+    Step 2: Token Scanning Logic
+
+        Sequential Processing: Iterate through each token in your existing linked list
+        Token Type Analysis: For each token, check if it's a "word_token" that might contain variables
+        Expansion Detection: Scan each token's DATA field character by character looking for the $ symbol
+        Context Awareness: Track whether you're inside quotes while scanning (single vs double quotes)
+
+    Step 3: Variable Recognition Algorithm
+
+        Variable Start Detection: When you encounter a $ character, mark the start position
+        Variable Name Extraction:
+            Identify where the variable name begins (right after $)
+            Determine where it ends (at a non-alphanumeric, non-underscore character)
+            Handle special case of $? (exactly two characters)
+            Support both simple form ( V A R ) a n d b r a c e d f o r m ( {VAR})
+
+    Step 4: Content Transformation Strategy
+
+        String Reconstruction: For each token containing expansions:
+        Create a new string with expanded content
+        Copy parts before variable references unchanged
+        Replace variable references with their values
+        Copy parts after variable references unchanged
+        Token Update:
+            Either update the existing token's DATA field
+            Or create a new token with the transformed content
+
+    Step 5: Word Splitting Implementation
+
+        Splitting Decision: Determine if word splitting should occur:
+        Apply word splitting only to unquoted expanded text
+        Preserve spaces in double-quoted expansions
+        New Token Generation:
+        If splitting occurs, create multiple tokens from one expanded token
+        Link these new tokens correctly into your token list
+
+    Step 6: Memory Management Plan
+
+        Allocation Strategy: Allocate memory for new strings and tokens as needed
+        Cleanup Protocol: Free original tokens if replacing them
+        Reuse Optimization: Reuse existing token structures where possible to minimize allocations
+
+
+1.2 Build a Variable Lookup Helper
+
+    Create a helper function to search your t_env list
+    Keep it separate from your existing environment handling code
+    Add special case detection for $?
+
+    Step 1: Design the Lookup Function Interface
+
+    Purpose: Efficiently search your environment variable list for specified variables
+    Parameters: Variable name and your environment structure
+    Return Value: The variable's value, or NULL if not found
+
+    Step 2: Search Algorithm Development
+
+        Traversal Logic: Create a mechanism to search through your t_env linked list
+        Comparison Method: Implement case-sensitive comparison for variable names
+            Early Exit Strategy: Return as soon as a match is found to optimize performance
+
+    Step 3: Special Variable Handling
+
+        Exit Status Support: Add special detection for $?
+        When variable name is exactly "?", return the exit status value
+        Convert the numeric exit status to a string
+        Edge Case Handling: Consider other special bash variables if implementing them:
+        $0 (shell name)
+        $# (argument count)
+        $n (positional parameters)
+
+    Step 4: Empty and Nonexistent Variables
+
+        Empty Variable Strategy: For existing variables with empty values, return an empty string
+        Nonexistent Variable Handling: For variables not found in the environment, return an empty string
+        Error Detection: Distinguish between errors and empty values where necessary
+
+    Step 5: Result Format Standardization
+
+        Return Format: Ensure consistent return format (strdup'd string that caller must free)
+        Memory Management: Document memory ownership responsibilities clearly
+        NULL Handling: Decide how to handle NULL returns vs. empty strings
+
+    Step 6: Integration Testing Plan
+
+        Test Cases: Develop a set of test cases for common variables
+        Edge Case Verification: Verify behavior with nonexistent variables
+        Performance Check: Ensure lookup remains efficient even with large environment lists
+
+*************************************************************************
+Phase 2: Implement Expansion Logic as a Transformation Step
+2.1 Develop String Transformation Functions
+
+    Create functions that transform token content without changing token structure
+    Process each token's DATA field to apply expansions
+    Detect $ symbols and replace with appropriate values
+
+2.2 Add Quote-Aware String Processing
+
+    Build helper functions to determine quote context within strings
+    Process single quotes and double quotes differently
+    Leave your existing quote-checking code unchanged
+****************************************************************************
+Phase 3: Add Word-Splitting as a Token List Transformation
+3.1 Create a Token List Transformer
+
+    Take your existing token list and create a new one with expanded tokens
+    If expansions generate multiple words, create multiple tokens
+    Keep your original token creation functions unchanged
+
+3.2 Implement Word Splitting Logic
+
+    Create a function that splits expanded content on whitespace
+    Only apply to unquoted expansions
+    Generate additional tokens when splitting occurs
+*************************************************************************************
+Phase 4: Integrate at the Right Point in Your Pipeline
+4.1 Identify the Insertion Point
+
+    Process expansions after syntax checking but before command execution
+    Add calls to your expansion functions without changing existing logic
+    Pass the token list through your expansion processor before building commands
+
+4.2 Execute Status Tracking
+
+    Add a small global variable to track last command's exit status
+    Update this value after command execution
+    Use it for $? expansion
+************************************************************************************
+Phase 5: Handle Special Cases
+5.1 Build Specialized String Handlers
+
+    Create helper functions for edge cases like adjacent variables
+    Process quoting rules in isolation from your main parser
+    Keep all complex expansion logic in the new module
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Phase 1: Develop an Independent Expansion Processor
+1.1 Create a Post-Lexing Expansion Function
+Step 1: Design the Expansion Function Interface
+
+    Purpose: Process your token list after lexical analysis to handle all variable expansions
+    Input Parameters:
+        t_token *token_list: Your linked list of tokens from the lexer
+        t_env *env_struct: Your environment variable linked list
+        int exit_status: The exit status of the last command (for $? expansion)
+    Output: Either a modified version of the original token list or a completely new token list
+    Functionality: Apply all variable expansions while respecting quote contexts
+
+Step 2: Token Scanning Logic
+
+    Linked List Traversal Approach:
+        Initialize a pointer to the head of your token list
+        Create a loop to process each token sequentially
+        Maintain references to current, previous, and potentially next tokens
+        Handle special cases at list boundaries (first and last tokens)
+
+    Token Type Filtering:
+        Check if the current token is a "word_tokin" (based on your naming convention)
+        Only process tokens that might contain variable references
+        Skip processing tokens like "pipe_token" that won't contain variables
+
+    Character-by-Character Scanning:
+        For each token's DATA field, scan through character by character
+        Keep track of the current position within the string
+        Look for $ characters that indicate potential variable references
+        Track quote context during scanning (outside quotes, in single quotes, in double quotes)
+
+    Quote Context State Machine:
+        Start in "unquoted" state
+        When encountering ', toggle to/from "single quoted" state if not in double quotes
+        When encountering ", toggle to/from "double quoted" state if not in single quotes
+        Remember that $ has special meaning only outside single quotes
+
+Step 3: Variable Recognition Algorithm
+
+    Variable Detection Pattern Matching:
+        When a $ character is found and not inside single quotes:
+            Mark the position as potential variable start
+            Check next character to determine variable type
+            Handle special cases like $? (exit status)
+            Distinguish between standard variables and braced variables ${VAR}
+
+    Variable Name Boundary Identification:
+        For standard variables ($VAR):
+            Start collecting name characters after the $
+            Continue until non-alphanumeric or non-underscore character
+            Handle end-of-string specially
+        For braced variables (${VAR}):
+            Start collecting after the opening brace
+            Continue until closing brace
+            Handle unmatched braces as error or literal
+
+    Special Variable Pattern Recognition:
+        Check for exact match with "?" for exit status
+        Add handling for other special parameters ($0, $1, etc.) if implementing
+        Identify special pattern end boundaries correctly
+
+    Variable Name Extraction:
+        Once boundaries are determined, extract the variable name
+        Allocate memory for the name if needed
+        Handle empty names as appropriate for bash
+
+Step 4: Content Transformation Strategy
+
+    String Buffer Management Approach:
+        Create a dynamic buffer for building the expanded string
+        Start with a reasonable initial size and grow as needed
+        Track current position and remaining capacity in buffer
+        Implement buffer growth strategy when needed
+
+    Segment-by-Segment String Construction:
+        Copy literal text between expansions directly
+        When a variable reference is found:
+            Look up the variable's value using the helper function
+            Insert the value into the buffer at current position
+            Continue scanning after the variable reference
+
+    Sequential Processing Flow:
+        Process the string from left to right in a single pass if possible
+        For complex cases, consider multi-pass approach:
+            First pass: Identify all variables and their boundaries
+            Second pass: Perform all expansions with known sizes
+
+    Token Content Replacement:
+        Once expansion is complete, either:
+            Update the existing token's DATA field with the new content
+            Create a new token and free the old one
+        Ensure proper memory management during replacement
+        Update token type if needed based on expansion result
+
+Step 5: Word Splitting Implementation
+
+    Word Boundary Detection Logic:
+        After expansion, scan for word boundaries in unquoted regions
+        Identify transitions between whitespace and non-whitespace
+        Mark start/end positions of each word in the expanded text
+        Consider IFS setting if implementing advanced features
+
+    Word Extraction Strategy:
+        For each identified word:
+            Extract a substring from the expanded text
+            Create a new token with the word as its DATA
+            Set appropriate token type ("word_tokin")
+            Insert into the token list at proper position
+
+    Token List Reconstruction Approach:
+        Decide whether to modify the list in-place or create a new list
+        If in-place:
+            Maintain proper next pointers during insertion
+            Handle cases where head or tail of list changes
+        If creating new list:
+            Build complete new list with expanded tokens
+            Free old list when complete
+
+    Quote Context Preservation:
+        Only perform word splitting on unquoted expansions
+        Preserve spaces in double-quoted expansions
+        Keep single-quoted text completely intact
+
+Step 6: Memory Management Plan
+
+    Allocation Strategy:
+        Prefer reusing existing token structures when possible
+        Allocate new tokens only when splitting creates multiple tokens
+        Use appropriate memory functions (malloc, free, realloc)
+        Consider memory pools for many small allocations if performance becomes an issue
+
+    Resource Cleanup Protocol:
+        Free temporary buffers used during expansion
+        Free original token DATA if replacing content
+        Free entire tokens if removing from list
+        Handle partial allocation failures gracefully
+
+    Error Recovery Procedure:
+        Implement cleanup on partial failure
+        Ensure no memory leaks on error paths
+        Document error handling behavior
+        Return appropriate error indicators
+
+1.2 Build a Variable Lookup Helper
+Step 1: Design the Lookup Function Interface
+
+    Purpose: Find the value of a specified environment variable
+    Input Parameters:
+        char *var_name: The name of the variable to look up
+        t_env *env_struct: Your environment variable linked list
+        int exit_status: Current exit status (for $? special case)
+    Output:
+        char *: The value of the variable (newly allocated string)
+        Return NULL or empty string for non-existent variables
+    Memory Ownership: Caller responsible for freeing returned string
+
+Step 2: Search Algorithm Development
+
+    Linked List Traversal Strategy:
+        Start at the head of your environment variable list
+        Iterate through each node in the list sequentially
+        For each node, compare the variable name (key field)
+        Continue until match found or end of list reached
+
+    String Comparison Approach:
+        Use case-sensitive comparison for variable names
+        Compare exact string match (strcmp or equivalent)
+        Avoid partial matches or prefix matching
+        Ensure null-safety in comparisons
+
+    Performance Considerations:
+        Start with linear search as it's simplest
+        If performance becomes an issue, consider:
+            Hash table for O(1) lookup
+            Sorted list with binary search
+            Caching frequently used variables
+
+    Early Exit Optimization:
+        Return as soon as a match is found
+        Don't traverse unnecessary parts of the list
+        Consider special case fast-paths for common variables
+
+Step 3: Special Variable Handling
+
+    Exit Status Implementation:
+        When variable name is exactly "?", handle specially
+        Convert numeric exit status to string:
+            Allocate buffer large enough for any status value
+            Use appropriate conversion function (sprintf or equivalent)
+            Ensure proper null-termination
+        Return the string representation of exit status
+
+    Special Parameter Handling (if implementing):
+        Add cases for other special bash variables:
+            $0: Program name
+            $#: Argument count
+            $n: Positional parameters
+        Implement appropriate lookup logic for each
+        Return properly formatted string values
+
+    Signal Status Integration:
+        Consider how signals affect $? value
+        Ensure signal handlers update exit status appropriately
+        Handle special signal exit codes consistently
+
+Step 4: Empty and Nonexistent Variables
+
+    Empty Variable Detection:
+        Distinguish between variables with empty values and nonexistent variables
+        For variables that exist but have empty values:
+            Return an empty string (newly allocated)
+            Don't return NULL which could indicate error
+
+    Nonexistent Variable Protocol:
+        When variable is not found in environment:
+            Return an empty string (consistent with bash)
+            Document this behavior clearly
+            Consider distinguishing between "not found" and "empty" if needed
+
+    Error State Handling:
+        Define behavior for allocation failures
+        Consider returning NULL only for true errors
+        Document error conditions and return values
+
+Step 5: Result Format Standardization
+
+    Return Value Consistency:
+        Always return a newly allocated string
+        Use consistent memory allocation function (strdup or equivalent)
+        Document memory ownership transfer to caller
+
+    String Format Guarantees:
+        Ensure all returned strings are properly null-terminated
+        Handle binary data in variables appropriately
+        Consider string encoding issues if relevant
+
+    Error Indication Approach:
+        Decide between NULL returns or empty strings for errors
+        Document error return behavior clearly
+        Ensure consistent error handling throughout
+
+Step 6: Integration Testing Plan
+
+    Test Case Catalog:
+        Develop test cases covering common variables
+        Include tests for:
+            Existing variables with values
+            Existing variables with empty values
+            Nonexistent variables
+            Special variables ($?)
+            Edge cases (long values, special characters)
+
+    Verification Strategy:
+        Compare outputs with actual bash behavior
+        Document expected results for each test case
+        Create regression tests to prevent regressions
+
+    Performance Evaluation:
+        Measure lookup times with various environment sizes
+        Identify performance bottlenecks
+        Optimize if necessary for large environments
+
+Phase 2: Implement Expansion Logic as a Transformation Step
+2.1 Develop String Transformation Functions
+Step 1: Design the String Expansion Function
+
+    Purpose: Transform a single string by replacing all variable references
+    Input Parameters:
+        char *input: Original string potentially containing variable references
+        t_env *env_struct: Environment variable linked list
+        int exit_status: Current exit status value
+        int quote_context: Initial quote context (if continuing from previous token)
+    Output:
+        char *: New string with all variables expanded
+        Additional metadata about final quote context if needed
+    Error Handling: Return NULL on allocation failure
+
+Step 2: Expansion State Machine Implementation
+
+    State Definition and Tracking:
+        Define possible states during string processing:
+            NORMAL: Outside any special context
+            IN_VAR: Processing a variable name
+            IN_BRACED_VAR: Processing a ${...} variable
+            IN_SINGLE_QUOTE: Inside single quotes
+            IN_DOUBLE_QUOTE: Inside double quotes
+        Track current state throughout processing
+        Implement state transitions based on character patterns
+
+    Character Processing Loop:
+        Scan through input string character by character
+        For each character, determine action based on current state
+        Handle state transitions when significant characters are encountered
+        Process characters differently based on current state
+
+    Quote Context Tracking:
+        Start with given initial quote context
+        Toggle quote state when encountering quote characters
+        Only process $ expansion when appropriate for quote context
+        Track whether quotes are opening or closing
+
+Step 3: Variable Expansion Implementation
+
+    Variable Reference Detection:
+        When in appropriate state, look for $ character
+        When found, transition to variable processing state
+        Extract variable name according to bash rules
+        Handle braced and unbraced variable formats
+
+    Value Substitution Process:
+        Use lookup helper to get variable's value
+        Append value to result string in place of reference
+        Handle empty values correctly
+        Process nested or adjacent variables properly
+
+    Expansion Context Awareness:
+        Expand variables differently based on quote context:
+            In double quotes: Expand but preserve spaces
+            Outside quotes: Expand and prepare for word splitting
+            In single quotes: Don't expand (treat as literal)
+
+Step 4: Result String Construction
+
+    Dynamic Buffer Management:
+        Initialize buffer with reasonable starting size
+        Grow buffer as needed during processing
+        Track current position and remaining space
+        Ensure buffer is always properly null-terminated
+
+    Segment Assembly Strategy:
+        Copy literal segments directly to output buffer
+        Insert expanded variable values at appropriate positions
+        Concatenate all elements into final string
+        Handle overlap between segments carefully
+
+    Memory Efficiency Considerations:
+        Minimize memory allocations when possible
+        Reuse buffers where appropriate
+        Release temporary memory promptly
+        Handle large expansions gracefully
+
+2.2 Add Quote-Aware String Processing
+Step 1: Quote Context Tracker Implementation
+
+    Quote State Definition:
+        Define an enumeration for quote states:
+            UNQUOTED: Not inside any quotes
+            SINGLE_QUOTED: Inside single quotes ('...')
+            DOUBLE_QUOTED: Inside double quotes ("...")
+        Create structure to track quote state during processing
+        Add fields for tracking escaped characters if needed
+
+    State Transition Logic:
+        Implement state machine for quote context:
+            From UNQUOTED: ' → SINGLE_QUOTED, " → DOUBLE_QUOTED
+            From SINGLE_QUOTED: ' → UNQUOTED (no escapes in single quotes)
+            From DOUBLE_QUOTED: " → UNQUOTED (unless escaped)
+        Handle escaped quotes according to bash rules
+        Track location of quote characters for potential removal
+
+    Context Determination Algorithm:
+        Create function to determine quote context at any position
+        Process string from beginning up to desired position
+        Return final quote state at that position
+        Consider optimization for repeated lookups
+
+Step 2: Quote-Specific Expansion Rules
+
+    Single Quote Handling:
+        Inside single quotes ('...'):
+            Treat all characters literally
+            Do not process variable expansions
+            Do not interpret special characters
+            Extract content without modification
+
+    Double Quote Handling:
+        Inside double quotes ("..."):
+            Process variable expansions
+            Treat spaces literally (no word splitting)
+            Handle escaped characters ($, ", \)
+            Preserve other characters exactly as they appear
+
+    Unquoted Text Processing:
+        Outside any quotes:
+            Process variable expansions
+            Mark expanded content for word splitting
+            Handle special characters according to bash rules
+            Prepare for command substitution if implementing
+
+Step 3: Expansion Context Propagation
+
+    Context Information Flow:
+        Design a mechanism to pass quote context between function calls
+        Maintain context when processing substrings
+        Handle transitions between quoted and unquoted regions
+
+    Content Marking for Post-Processing:
+        Flag regions with different expansion rules
+        Mark boundaries for word splitting phase
+        Preserve quote information for later stages
+
+    Quote Removal Strategy:
+        Design algorithm for removing quotes at appropriate time
+        Handle nested quotes correctly
+        Only remove syntactic quotes, not content quotes
+
+Step 4: Edge Case Processing
+
+    Incomplete Quote Handling:
+        Decide how to handle unterminated quotes
+        Options: error, treat as literal, attempt recovery
+        Maintain consistency with your shell's error handling
+
+    Escaped Character Processing:
+        Implement escape sequence handling in different contexts
+        Map escape sequences to their interpreted values
+        Handle special cases like \newline
+
+    Adjacent Quote Patterns:
+        Process transitions between quote types
+        Handle empty quoted strings correctly
+        Process patterns like '"$VAR"' with nested quotes
+
+Phase 3: Add Word-Splitting as a Token List Transformation
+3.1 Create a Token List Transformer
+Step 1: Design the Transformation Function Interface
+
+    Purpose: Apply word splitting to create proper token list after expansion
+    Input Parameters:
+        t_token *expanded_list: Token list with expansions applied
+        Additional metadata about expansion results if needed
+    Output:
+        t_token *: New or modified token list with word splitting applied
+        Possible error indicator
+    Integration Point: After expansion, before command table building
+
+Step 2: Word-Split Detection Logic
+
+    Split Candidate Identification:
+        Examine each token to determine if it needs splitting
+        Apply word splitting only to tokens with:
+            Expanded variables that were not in double quotes
+            Whitespace resulting from expansion
+        Skip tokens that shouldn't be split (quoted expansions)
+
+    Split Marker Processing:
+        If using markers from expansion phase, process them
+        Identify boundaries where splits should occur
+        Apply splitting rules consistently
+
+    Token Classification Update:
+        Determine if token types need to change after splitting
+        Maintain correct token type for each resulting token
+        Handle special cases where type might change
+
+Step 3: Token List Reconstruction
+
+    List Manipulation Strategy:
+        Choose between in-place modification or new list creation
+        Consider trade-offs between complexity and efficiency
+        Design algorithm to maintain list integrity during changes
+
+    Token Insertion Mechanism:
+        Create new tokens for each split part
+        Insert them into the list at appropriate positions
+        Update next pointers to maintain linked list structure
+        Handle special cases at list boundaries
+
+    Original Token Disposition:
+        Decide whether to reuse, modify, or free original tokens
+        Ensure proper memory management during transformation
+        Implement cleanup for replaced tokens
+
+3.2 Implement Word Splitting Logic
+Step 1: Whitespace Tokenization Algorithm
+
+    Whitespace Identification:
+        Define what characters constitute whitespace (space, tab, newline)
+        Create function to identify whitespace characters
+        Consider IFS (Internal Field Separator) if implementing advanced features
+
+    Word Boundary Detection:
+        Implement algorithm to find transitions between:
+            Whitespace to non-whitespace (word start)
+            Non-whitespace to whitespace (word end)
+        Handle beginning and end of string as special cases
+        Track word boundaries as you scan
+
+    Empty Word Handling:
+        Decide how to handle consecutive whitespace (empty words)
+        Typically, empty words are skipped in bash
+        Implement consistent behavior based on bash rules
+
+Step 2: Word Extraction Process
+
+    Substring Extraction:
+        For each identified word boundary pair:
+            Calculate word length
+            Extract substring from original string
+            Allocate memory for new string
+            Copy word content precisely
+
+    Token Creation for Words:
+        For each extracted word:
+            Create new token using your existing token creation function
+            Set appropriate token type (typically "word_tokin")
+            Initialize other token fields as needed
+
+    Sequential Processing Implementation:
+        Process the string from left to right
+        Extract and create tokens in sequence
+        Maintain proper ordering in the final token list
+
+Step 3: Special Case Handling
+
+    Quote Preservation During Splitting:
+        Ensure quotes within words remain intact
+        Do not split inside quoted regions
+        Preserve quote characters as needed
+
+    Adjacent Delimiter Processing:
+        Handle consecutive whitespace correctly
+        Skip empty words unless quoted
+        Ensure behavior matches bash semantics
+
+    Optimization Considerations:
+        Minimize string copying when possible
+        Reuse memory allocation when appropriate
+        Balance performance with correctness
+
+Phase 4: Integrate at the Right Point in Your Pipeline
+4.1 Identify the Insertion Point
+Step 1: Pipeline Analysis
+
+    Current Processing Flow Documentation:
+        Map out your shell's existing processing pipeline:
+            Input reading
+            Lexical analysis (tokenization)
+            Syntax validation
+            Command structure building
+            Command execution
+        Identify data structures at each stage
+        Document function calls between stages
+
+    Dependency Analysis:
+        Identify what information is needed for expansion:
+            Token list must be fully formed
+            Syntax must be valid
+            Environment must be accessible
+            Exit status must be available
+        Determine which stage satisfies all requirements
+
+    Insertion Point Selection:
+        Based on dependencies, select optimal insertion point
+        Typically best after syntax validation, before command building
+        Ensure all prerequisites are met at chosen point
+
+Step 2: Minimal Modification Strategy
+
+    Function Call Addition Approach:
+        Identify single function to modify
+        Add minimal code to call expansion processor
+        Maintain existing control flow
+        Minimize changes to interface contracts
+
+    Variable Access Planning:
+        Ensure environment structure is accessible
+        Make sure exit status is available
+        Address any scope issues for required variables
+
+    Error Handling Integration:
+        Adopt existing error handling patterns
+        Propagate expansion errors appropriately
+        Maintain consistent user experience
+
+Step 3: Integration Implementation Plan
+
+    Code Change Specification:
+        Document exact location for code insertion
+        Describe precise changes to make
+        List any additional modifications needed
+
+    Pre/Post Condition Analysis:
+        Document state before expansion processing
+        Define expected state after expansion
+        Ensure state transitions are clean
+
+    Pipeline Flow Preservation:
+        Maintain original processing sequence
+        Ensure data flows correctly through pipeline
+        Verify no stages are bypassed accidentally
+
+4.2 Execute Status Tracking
+Step 1: Status Storage Mechanism
+
+    Global Variable Design:
+        Design minimal global variable to store exit status
+        Consider visibility scope requirements
+        Document usage patterns clearly
+
+    Initialization Protocol:
+        Set initial value to 0 (success) at shell startup
+        Ensure proper initialization in all code paths
+        Handle program start edge cases
+
+    Access Pattern Documentation:
+        Define how and when status variable is accessed
+        Document thread safety considerations if relevant
+        Specify read/write patterns
+
+Step 2: Status Update Points
+
+    Command Execution Result Capturing:
+        Identify all points where commands complete execution
+        Capture exit status (waitpid return value processing)
+        Update global status variable immediately
+
+    Signal Handler Integration:
+        Update status variable in signal handlers
+        Set appropriate values for different signals:
+            SIGINT (Ctrl+C): 130
+            SIGQUIT (Ctrl+): 131
+            Other signals as appropriate
+
+    Built-in Command Status Setting:
+        Update status after built-in command execution
+        Ensure consistent behavior across all commands
+        Match bash exit status conventions
+
+Step 3: Status Access for Expansion
+
+    Expansion Function Integration:
+        Pass current exit status to expansion function
+        Make status available for $? expansion
+        Ensure up-to-date status is always used
+
+    String Conversion Implementation:
+        Create function to convert status to string
+        Handle full range of values (0-255)
+        Ensure consistent format
+
+    Memory Management for Status Strings:
+        Decide on static vs. dynamic allocation
+        If dynamic, ensure proper cleanup
+        Document memory ownership clearly
+
+Phase 5: Handle Special Cases
+5.1 Build Specialized String Handlers
+Step 1: Adjacent Variable Processing
+
+    Detection Algorithm:
+        Create pattern matcher for consecutive variables ( V A R 1 VAR2)
+        Identify transitions between variable references
+        Handle variables with no separator
+
+    Concatenation Implementation:
+        Process adjacent variables by concatenating their values
+        Handle empty values appropriately
+        Preserve exact spacing according to bash rules
+
+    Testing Protocol:
+        Develop test cases for adjacent variables
+        Compare with bash for validation
+        Test with various combinations of defined/undefined variables
+
+Step 2: Quoted Variable Edge Cases
+
+    Complex Quote Pattern Processing:
+        Handle patterns like " V A R " ′ VAR'
+        Process multi-level quoting correctly
+        Apply expansion rules precisely based on quote context
+
+    Quote Removal Algorithm:
+        Implement rules for removing quotes after expansion
+        Remove only quotes that were syntactic, not in content
+        Apply quote removal at the right stage in processing
+
+    Edge Case Catalog:
+        Document all quote-related edge cases
+        Create test cases for complex quote patterns
+        Validate behavior against bash
+
+Step 3: Special Pattern Handling
+
+    Braced Variable Processing:
+        Implement ${VAR} syntax support
+        Handle nested braces if supporting advanced features
+        Process boundary characters correctly
+
+    Empty/Unset Variable Differences:
+        If implementing bash-like behavior, distinguish between:
+            Unset variables (never defined)
+            Empty variables (defined but empty)
+        Apply appropriate behavior for each case
+
+    Advanced Parameter Expansion:
+        If implementing, add support for:
+            ${VAR:-default}
+            ${VAR:=default}
+            ${VAR:?error}
+            ${VAR:+value}
+        Define behavior consistent with bash
+
+
+
+
+
+
+
+
+while tmp != NULL
+    if tmp->tokin == word_tokin
+        flag_expand = scan_for_expand(tmp->data);
+    if tmp->data[i] == '\''
+        i++;
+    
+
+frist is to creat a while that loop thero the linked list and 
+check every variable token if it a word or not 
+then if it is we will call a func that will scan the string for $
+and ther is a $ it will return a 1 and if not will return 0;
+after that we see the variable is indise ' or " or a mix " and '
+and after that wi looke for the closing quote of the same type
+and if the variable is not inside the quote it will print NORMAL
+but if ther closing quote is like string joined with the variable
+the quote for the string we be removed 
+ 
