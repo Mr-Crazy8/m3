@@ -135,9 +135,9 @@ int main(int argc, char *argv[], char *env[])
         }   
         free_token_list(token_list);
         free(preprocessed_input);
+    if (cmd)
+    free_cmd_list(cmd);
 
-        //free_tokens(token_list);
-        free(input);
     }
     return 0;
 }

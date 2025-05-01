@@ -39,7 +39,8 @@ void print_cmd(t_cmd *cmd_list)    /// this should be deleted in the final work
     while (tmp)
     {
         i = 0;
-        printf("command name : %s\n", tmp->cmd);
+        if (tmp->cmd)
+            printf("command name : %s\n", tmp->cmd);
         while (tmp->args[i])
         {
             printf("command args : %s\n", tmp->args[i]);

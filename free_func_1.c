@@ -10,7 +10,8 @@ void free_redirs(t_redir *redir_list)
     while(current)
     {
         next = current->next;
-        free(current->file);
+        if (current->file)
+            free(current->file);
         free(current);
         current = next;
     }
