@@ -36,6 +36,7 @@ typedef struct s_redir
 {
     int type;             /* 0:<, 1:>, 2:>>, 3:<< */
     char *file;           /* Filename or heredoc delimiter */
+    int Ambiguous;
     struct s_redir *next; /* Next redirection */
 } t_redir;
 

@@ -186,3 +186,99 @@ Express.js
 RESTful API
 SQL
 NoSQL
+
+
+
+
+
+Google Cybersecurity Professional Certificate 39$ (for each month)
+Certified Red Team Professional (CRTP) 300$
+Windows Red Team Lab (CRTE) 300$
+CompTIA Pentest+       404$
+HTB Certified Penetration Testing Specialist 500$
+HTB Certified Penetration Testing Specialist 500$
+
+
+
+
+i need to be full-stack web Development + and great at web sec + and good at web CTF can you pls 
+creat for me a detailes roadmap using this info and i have one year for know :
+
+
+for web i have the odin project and freeCodeCamp
+
+
+this is list of Certification of freeCodeCamp : 
+
+Responsive Web Design
+JavaScript Algorithms and Data Structures
+Front End Development Libraries
+Relational Database
+Back End Development and APIs
+Information Security
+Machine Learning with Python
+Data Analysis with Python
+Scientific Computing with Python
+Quality Assurance
+Data Visualization
+
+
+
+for web sec  i have : 
+
+portswigger
+
+
+
+Google Cybersecurity Professional Certificate 
+Certified Red Team Professional (CRTP) 
+Windows Red Team Lab (CRTE)
+
+Jr Penetration Tester PATH from tryhackme
+Web Fundamentals PATH from tryhackme
+Web Application Pentesting PATH from tryhackme
+Red Teaming PATH from tryhackme
+CompTIA Pentest+ from tryhackme
+picoCTF for web exploitation categories [Easy, Medium, Hard]
+ctflearn for web exploitation categories [Easy, Medium, Hard]
+root-me for web exploitation categories [Easy, Medium, Hard]
+for picoCTF and  ctflearn and root-me my plan is to finish all the Easy of each one of theme 
+the go to Medium and then go to Hard and for every CTF i will write i write-up for it 
+
+for my portfolio i find the projects with videos of how to make theme  : 
+
+"Build a typing App just like Typeracer using React - Best project to Learn State Management Zustand"
+
+" Build Bitcoin Price Tracker with React.js, Typescript and AirCode.io "
+
+ " Build Captions Generator with Next.js and React "
+
+ " 🤖 Build NextJs AI Sort Video Generator Using React.Js, Tailwind, AI, Clerk, Neon | 🎥 Full Stack App "+
+
+ "Modern React Chat App "
+
+ " ft_transcendence : 
+    This project is about creating a website for the mighty Pong contest
+
+    this software will offer a nice user interface and real-time multiplayer capabilities allowing
+to play Pong with all yours friends "
+
+
+
+Do you want the roadmap to be structured month-by-month for the full year?
+
+month-by-month
+
+
+How many hours per week can you dedicate to this plan?
+
+30 
+
+Do you want to prioritize any specific area first (e.g., frontend development, backend, web security, or CTF)?
+
+i realy dont know 
+
+Are you planning to apply for jobs or internships during or after this year, or is this purely skill-building for now?
+
+i need a internships befor the end of the year from now
+

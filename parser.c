@@ -1,54 +1,7 @@
 #include "minishell.h" //5 func
 
 
-// static int skip_redirections(char *str)
-// {
-//     int i;
-
-//     i = 0;
-//     if (!str)
-//         return (0);
-//     while (str[i])
-//     {
-//         if (str[i] == '<' || str[i] == '>')
-//         {
-//             i++;
-//             while (str[i] && str[i] == ' ')
-//                 i++;
-//             while (str[i] && str[i] != ' ' && str[i] != '<' && str[i] != '>')
-//                 i++;
-//         }
-//         else if (str[i] == ' ')
-//             i++;
-//         else
-//             break;
-//     }
-//     return (i);
-// }
-
-// char *cmd_extracter(char *str)
-// {
-//     int i;
-//     int start_cmd;
-//     int end_cmd;
-//     char *cmd;
-
-//     if (!str)
-//         return (NULL);
-//     i = skip_redirections(str);
-//     start_cmd = i;
-//     while (str[i] && str[i] != '>' && str[i] != '<')
-//         i++;
-//     end_cmd = i;
-//     if (end_cmd > start_cmd)
-//         cmd = ft_substr(str, start_cmd, end_cmd - start_cmd);
-//     else
-//         cmd = ft_substr("", 0, 0);
-//     return (cmd);
-// }
-
-
-static int skip_redirections(char *str)
+static int skip_redirections(char *str)//37
 {
     int i;
     int quote_state = 0; // 0: no quote, 1: single quote, 2: double quote
@@ -89,21 +42,31 @@ static int skip_redirections(char *str)
     return (i);
 }
 
-char *cmd_extracter(char *str)
+char *cmd_extracter(char *str)///106
 {
-    int i;
-    int start_cmd;
-    int end_cmd;
-    char *cmd;
+    char *result = NULL;
+    int i = 0;
+    int start = 0;
     int quote_state = 0; // 0: no quote, 1: single quote, 2: double quote
-
+    
     if (!str)
         return (NULL);
+    
+    // Allocate buffer for result (potentially the same size as input)
+    result = (char *)malloc(strlen(str) + 1);
+    if (!result)
+        return (NULL);
+    
+    // Initialize with empty string
+    result[0] = '\0';
+    int result_len = 0;
+    
+    // Skip initial redirections
     i = skip_redirections(str);
-    start_cmd = i;
     
     while (str[i])
     {
+        // Handle quotes
         if (str[i] == '\'')
         {
             if (quote_state == 0)
@@ -118,17 +81,75 @@ char *cmd_extracter(char *str)
             else if (quote_state == 2)
                 quote_state = 0;
         }
-        if ((str[i] == '>' || str[i] == '<') && quote_state == 0)
-            break;
+        
+        // If we encounter a redirection outside quotes
+        if (quote_state == 0 && (str[i] == '>' || str[i] == '<'))
+        {
+            // Mark end of current argument
+            if (result_len > 0 && result[result_len-1] != ' ')
+                result[result_len++] = ' ';
+                
+            // Skip the redirection character
+            i++;
             
-        i++;
+            // Skip second redirection character if >> or <<
+            if (str[i] == '>' || str[i] == '<')
+                i++;
+                
+            // Skip spaces
+            while (str[i] && str[i] == ' ')
+                i++;
+                
+            // Skip the filename
+            while (str[i] && str[i] != ' ' && str[i] != '>' && str[i] != '<')
+            {
+                // Handle quoted filenames
+                if (str[i] == '\'' || str[i] == '\"')
+                {
+                    char quote = str[i++];
+                    while (str[i] && str[i] != quote)
+                        i++;
+                    if (str[i])
+                        i++;
+                }
+                else
+                    i++;
+            }
+        }
+        else if (str[i] == ' ')
+        {
+            // Add a single space
+            result[result_len++] = ' ';
+            i++;
+            
+            // Skip multiple spaces
+            while (str[i] && str[i] == ' ')
+                i++;
+        }
+        else
+        {
+            // Copy regular characters
+            result[result_len++] = str[i++];
+        }
     }
-    end_cmd = i;
-    if (end_cmd > start_cmd)
-        cmd = ft_substr(str, start_cmd, end_cmd - start_cmd);
-    else
-        cmd = ft_substr("", 0, 0);
-    return (cmd);
+    
+    // Null-terminate the result
+    result[result_len] = '\0';
+    
+    // Trim leading/trailing spaces
+    char *trimmed = result;
+    while (*trimmed == ' ')
+        trimmed++;
+    
+    char *final = ft_strdup(trimmed);
+    
+    // Remove trailing spaces
+    int len = strlen(final);
+    while (len > 0 && final[len-1] == ' ')
+        final[--len] = '\0';
+    
+    free(result);
+    return final;
 }
 
 

@@ -102,3 +102,6 @@ static char *process_redir(char *str, int *pos)
     *pos = i;
     return (ft_substr(str, start, i - start));
 }
+
+
+

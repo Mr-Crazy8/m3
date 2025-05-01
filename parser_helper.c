@@ -24,7 +24,7 @@ void *ft_memcpy_q(void *dest, const void *src, size_t n)
 
 
 
-static size_t count_words_q(char const *s, char c)
+static size_t count_words_q(char const *s, char c)//35
 {
     size_t i;
     size_t n;
@@ -63,7 +63,7 @@ static size_t count_words_q(char const *s, char c)
     return (n);
 }
 
-static char **split_string_q(char const *s, char c, char **split, size_t n)
+static char **split_string_q(char const *s, char c, char **split, size_t n)///50
 {
     size_t i = 0;
     size_t j = 0;
@@ -130,3 +130,4 @@ char **ft_split_q(char const *s, char c)
         return (NULL);
     return (split_string_q(s, c, split, n));
 }
+

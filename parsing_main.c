@@ -1,11 +1,82 @@
 #include "minishell.h"
 
 
-// void ff()
-// {
-//     system("leaks minishell");
-// }
-
+char *preprocess_command(char *input) ///73 line 
+{
+    if (!input)
+        return NULL;
+        
+    // Allocate a buffer - potentially need to add many spaces
+    // Worst case: every character could need a space before and after
+    char *result = malloc(strlen(input) * 3 + 1);
+    if (!result)
+        return NULL;
+        
+    int i = 0;              // input index
+    int j = 0;              // result index
+    int in_quotes = 0;      // 0: no quotes, 1: single quotes, 2: double quotes
+    
+    while (input[i])
+    {
+        // Handle quote state
+        if (input[i] == '\'' && in_quotes != 2)  // Not inside double quotes
+        {
+            if (in_quotes == 1)
+                in_quotes = 0;  // Exit single quote mode
+            else
+                in_quotes = 1;  // Enter single quote mode
+                
+            result[j++] = input[i++];
+            continue;
+        }
+        else if (input[i] == '\"' && in_quotes != 1)  // Not inside single quotes
+        {
+            if (in_quotes == 2)
+                in_quotes = 0;  // Exit double quote mode
+            else
+                in_quotes = 2;  // Enter double quote mode
+                
+            result[j++] = input[i++];
+            continue;
+        }
+        
+        // If we're in quotes, copy character as-is
+        if (in_quotes)
+        {
+            result[j++] = input[i++];
+            continue;
+        }
+        
+        // Handle redirection operators outside quotes
+        if (input[i] == '>' || input[i] == '<')
+        {
+            // Add space before if the previous char isn't a space or another redirection operator
+            if (j > 0 && result[j-1] != ' ' && result[j-1] != '>' && result[j-1] != '<')
+                result[j++] = ' ';
+                
+            // Copy the redirection character
+            result[j++] = input[i++];
+            
+            // Handle >> or << case
+            if (input[i] == '>' || input[i] == '<')
+                result[j++] = input[i++];
+                
+            // Add space after
+            if (input[i] && input[i] != ' ')
+                result[j++] = ' ';
+        }
+        else
+        {
+            // Copy regular character
+            result[j++] = input[i++];
+        }
+    }
+    
+    // Null-terminate the result
+    result[j] = '\0';
+    
+    return result;
+}
 
 int main(int argc, char *argv[], char *env[])
 {
@@ -15,6 +86,7 @@ int main(int argc, char *argv[], char *env[])
     int exit_status;
     char *input;
     t_cmd *cmd;
+    char *preprocessed_input;
     
     // atexit(ff);
     env_maker(env, &env_struct);
@@ -31,8 +103,16 @@ int main(int argc, char *argv[], char *env[])
             free(input);
             continue;
         }
+
+        // Preprocess input to add spaces around redirection operators
+        preprocessed_input = preprocess_command(input);
+        free(input);  // Free original input
             
-        token_list = tokin_list_maker(input);
+         if (!preprocessed_input)
+            continue;
+
+
+        token_list = tokin_list_maker(preprocessed_input);
         if (token_list && !error_pipi(token_list)  && !check_syntax_errors(token_list))
         {
             printf("--- TOKENS ---\n");
@@ -54,7 +134,8 @@ int main(int argc, char *argv[], char *env[])
             // free_command_table(command_table);
         }   
         free_token_list(token_list);
-        
+        free(preprocessed_input);
+
         //free_tokens(token_list);
         free(input);
     }

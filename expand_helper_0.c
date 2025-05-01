@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   quote_removal.c                                    :+:      :+:    :+:   */
+/*   expand_helper_0.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: anel-men <anel-men@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 11:21:05 by anel-men          #+#    #+#             */
-/*   Updated: 2025/04/21 11:30:44 by anel-men         ###   ########.fr       */
+/*   Updated: 2025/04/30 16:41:52 by anel-men         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ char *selective_remove_quotes(char *str, int remove_mode)
     return (new_str);
 }
 
-void process_quotes_for_cmd(t_cmd *cmd_list, int remove_mode)
+void process_quotes_for_cmd(t_cmd *cmd_list, int remove_mode)//65
 {
     t_cmd *current;
     char *processed;
