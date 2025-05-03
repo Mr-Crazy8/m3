@@ -1,81 +1,84 @@
 #include "minishell.h"
 
 
-char *preprocess_command(char *input) ///73 line 
+int preprocess_cmd_hp_0(char *input, int *i, int *in_quotes, char *result, int *j)
 {
+        if (input[(*i)] == '\'' && *in_quotes != 2)
+        {
+            if (*in_quotes == 1)
+                *in_quotes = 0;
+            else
+                *in_quotes = 1;
+            result[(*j)++] = input[(*i)++];
+            return (1);
+        }
+        else if (input[(*i)] == '\"' && *in_quotes != 1)
+        {
+            if (*in_quotes == 2)
+                *in_quotes = 0; 
+            else
+                *in_quotes = 2;
+            result[(*j)++] = input[(*i)++];
+            return (1);
+        }
+        return(0);
+
+}
+
+
+void preprocess_cmd_hp_1(char *input, int *i, int *in_quotes, char *result, int *j)
+{
+    if (input[(*i)] == '>' || input[(*i)] == '<')
+    {
+        if ((*j) > 0 && result[(*j)-1] != ' ' && result[(*j)-1] != '>' && result[(*j)-1] != '<')
+                result[(*j)++] = ' ';
+            result[(*j)++] = input[(*i)++];
+            if (input[(*i)] == '>' || input[(*i)] == '<')
+                result[(*j)++] = input[(*i)++];
+            if (input[(*i)] && input[(*i)] != ' ')
+                result[(*j)++] = ' ';
+    }
+    else
+        result[(*j)++] = input[(*i)++];
+
+}
+
+int preprocess_cmd_hp_2(char *input, int *i, int *in_quotes, char *result, int *j)
+{
+    if (*in_quotes)
+    {
+        result[(*j)++] = input[(*i)++];
+        return (1);
+    }
+    return (0);
+}
+
+char *preprocess_command(char *input)
+{
+    int i = 0;             
+    int j = 0;             
+    int in_quotes = 0;   
+    char *result;
+    
     if (!input)
         return NULL;
         
-    // Allocate a buffer - potentially need to add many spaces
-    // Worst case: every character could need a space before and after
-    char *result = malloc(strlen(input) * 3 + 1);
+    result = malloc(strlen(input) * 3 + 1);
     if (!result)
         return NULL;
         
-    int i = 0;              // input index
-    int j = 0;              // result index
-    int in_quotes = 0;      // 0: no quotes, 1: single quotes, 2: double quotes
-    
+    i = 0;             
+    j = 0;             
+    in_quotes = 0;    
     while (input[i])
     {
-        // Handle quote state
-        if (input[i] == '\'' && in_quotes != 2)  // Not inside double quotes
-        {
-            if (in_quotes == 1)
-                in_quotes = 0;  // Exit single quote mode
-            else
-                in_quotes = 1;  // Enter single quote mode
-                
-            result[j++] = input[i++];
+        if (preprocess_cmd_hp_0(input, &i, &in_quotes, result, &j))
             continue;
-        }
-        else if (input[i] == '\"' && in_quotes != 1)  // Not inside single quotes
-        {
-            if (in_quotes == 2)
-                in_quotes = 0;  // Exit double quote mode
-            else
-                in_quotes = 2;  // Enter double quote mode
-                
-            result[j++] = input[i++];
+        if (preprocess_cmd_hp_2(input, &i, &in_quotes, result, &j))
             continue;
-        }
-        
-        // If we're in quotes, copy character as-is
-        if (in_quotes)
-        {
-            result[j++] = input[i++];
-            continue;
-        }
-        
-        // Handle redirection operators outside quotes
-        if (input[i] == '>' || input[i] == '<')
-        {
-            // Add space before if the previous char isn't a space or another redirection operator
-            if (j > 0 && result[j-1] != ' ' && result[j-1] != '>' && result[j-1] != '<')
-                result[j++] = ' ';
-                
-            // Copy the redirection character
-            result[j++] = input[i++];
-            
-            // Handle >> or << case
-            if (input[i] == '>' || input[i] == '<')
-                result[j++] = input[i++];
-                
-            // Add space after
-            if (input[i] && input[i] != ' ')
-                result[j++] = ' ';
-        }
-        else
-        {
-            // Copy regular character
-            result[j++] = input[i++];
-        }
+        preprocess_cmd_hp_1(input, &i, &in_quotes, result, &j);
     }
-    
-    // Null-terminate the result
-    result[j] = '\0';
-    
-    return result;
+    return (result[j] = '\0', result);
 }
 
 int main(int argc, char *argv[], char *env[])
@@ -93,6 +96,7 @@ int main(int argc, char *argv[], char *env[])
     token_list = NULL;
     while (1)
     {
+        cmd = NULL;
         input = readline("minishell $> ");
         if (!input)
             break;
@@ -116,9 +120,9 @@ int main(int argc, char *argv[], char *env[])
         if (token_list && !error_pipi(token_list)  && !check_syntax_errors(token_list))
         {
             printf("--- TOKENS ---\n");
-            expand_handle(token_list, env_struct, exit_status);
             //process_quotes_for_tokens(token_list, 1);
             cmd = parser(token_list);
+            expand_handle(cmd, env_struct, exit_status);
             //debug_print_cmd(cmd);
             if (cmd == NULL) {
                 printf("Warning: Command list is empty after parsing!\n");
@@ -126,12 +130,6 @@ int main(int argc, char *argv[], char *env[])
                 process_quotes_for_cmd(cmd, 1);
                 print_cmd(cmd);
             }
-          // print_tokens(token_list);
-           // command_table = parse_tokens(token_list);
-           //print_command_table(command_table);
-            
-            // Free the command table here to avoid memory leaks
-            // free_command_table(command_table);
         }   
         free_token_list(token_list);
         free(preprocessed_input);

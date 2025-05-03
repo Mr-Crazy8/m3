@@ -80,16 +80,24 @@ static char *process_redir(char *str, int *pos)
     int start;
     int i;
     int quote_state;
-    
+    int after_operator;
+
     start = *pos;
     i = start + 1;
     if (str[start] == '>' && str[i] == '>')
         i++;
     else if (str[start] == '<' && str[i] == '<')
         i++;
+
+    after_operator = i;
     while (str[i] == ' ')
         i++;
-    
+
+    if (!str[i] || (str[i] == '>' || str[i] == '<'))
+    {
+        *pos = after_operator;
+        return (ft_substr(str, start, after_operator - start));
+    }
     quote_state = 0;
     while (str[i])
     {

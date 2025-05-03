@@ -123,7 +123,7 @@ int scan_for_expand(char *str);
 char *extranct_valu(char *str);
 int	ft_isalnum(int c);
 int is_valid_var_char(char c);
-void expand_handle(t_token *token_list, t_env *env, int exit_status);
+void	expand_handle(t_cmd *cmd_list, t_env *env, int exit_status);
 char *lookup_variable(char *var_name, t_env *env_struct);
 int has_unquoted_spaces(char *str);
 void split_token(t_token *token);
@@ -149,7 +149,7 @@ int expand_handle_helper0(t_exp_helper *expand);
 int  expand_handle_helper1(t_exp_helper *expand, int exit_status , t_env *env);
 int expand_fill(t_exp_helper *expand, t_token *tmp);
 void process_token(t_token *tmp, t_exp_helper *expand, t_env *env, int exit_status);
-void expand_handle(t_token *token_list, t_env *env, int exit_status);
+// void expand_handle(t_token *token_list, t_env *env, int exit_status);
 char *lookup_variable(char *var_name, t_env *env_struct);
 
 
@@ -203,6 +203,10 @@ t_redir *creat_redir_list_helper0(char *str1, char *str2);
 int creat_redir_list_helper(char *str);
 static char *process_redir(char *str, int *pos);
 t_redir *creat_redir_node(int type, char *file);
+
+
+
+int	expand_fill_str(t_exp_helper *expand, char *str);
 #endif
     
     

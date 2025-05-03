@@ -1,31 +1,43 @@
 #include "minishell.h" //5 func
 
 
-static int skip_redirections(char *str)//37
+
+
+
+
+
+
+
+void skip_redirections_hp(char str, int *quote_state)
+{
+    if (str == '\'')
+    {
+        if (*quote_state == 0)
+            *quote_state = 1;
+        else if (*quote_state == 1)
+            *quote_state = 0;
+    }
+    else if (str == '\"')
+    {
+        if (*quote_state == 0)
+            *quote_state = 2;
+        else if (*quote_state == 2)
+            *quote_state = 0;
+    }
+}
+
+static int skip_redirections(char *str)
 {
     int i;
-    int quote_state = 0; // 0: no quote, 1: single quote, 2: double quote
+    int quote_state; // 0: no quote, 1: single quote, 2: double quote
 
+    quote_state = 0;
     i = 0;
     if (!str)
         return (0);
     while (str[i])
     {
-        // Handle quotes
-        if (str[i] == '\'')
-        {
-            if (quote_state == 0)
-                quote_state = 1;
-            else if (quote_state == 1)
-                quote_state = 0;
-        }
-        else if (str[i] == '\"')
-        {
-            if (quote_state == 0)
-                quote_state = 2;
-            else if (quote_state == 2)
-                quote_state = 0;
-        }
+        skip_redirections_hp(str[i], &quote_state);
         if ((str[i] == '<' || str[i] == '>') && quote_state == 0)
         {
             i++;
@@ -42,114 +54,129 @@ static int skip_redirections(char *str)//37
     return (i);
 }
 
-char *cmd_extracter(char *str)///106
+void  cmd_extracter_hp_0(char str, int *quote_state)
 {
-    char *result = NULL;
-    int i = 0;
-    int start = 0;
-    int quote_state = 0; // 0: no quote, 1: single quote, 2: double quote
+      if (str == '\'')
+        {
+            if (*quote_state == 0)
+                *quote_state = 1;
+            else if (*quote_state == 1)
+                *quote_state = 0;
+        }
+        else if (str == '\"')
+        {
+            if (*quote_state == 0)
+                *quote_state = 2;
+            else if (*quote_state == 2)
+                *quote_state = 0;
+        }
+
+}
+
+void  cmd_extracter_hp_1(char *str, int *quote_state, int *i, int *result_len, char *result)
+{
+     char quote;
+       if (*quote_state == 0 && (str[(*i)] == '>' || str[(*i)] == '<'))
+        {
+            if (*result_len > 0 && result[(*result_len)-1] != ' ')
+                result[(*result_len)++] = ' ';
+            (*i)++;
+            if (str[(*i)] == '>' || str[(*i)] == '<')
+                (*i)++;
+            while (str[(*i)] && str[(*i)] == ' ')
+                (*i)++;
+            while (str[(*i)] && str[(*i)] != ' ' && str[(*i)] != '>' && str[(*i)] != '<')
+            {
+                if (str[(*i)] == '\'' || str[(*i)] == '\"')
+                {
+                    quote = str[(*i)++];
+                    while (str[(*i)] && str[(*i)] != quote)
+                        (*i)++;
+                    if (str[(*i)])
+                        (*i)++;
+                }
+                else
+                    (*i)++;
+            }
+        }
+}
+
+
+void cmd_extracter_hp_2(char *str, int *i, char *result, int *result_len)
+{
+    if (str[(*i)] == ' ')
+        {
+            result[(*result_len)++] = ' ';
+            (*i)++;
+            while (str[(*i)] && str[(*i)] == ' ')
+                (*i)++;
+        }
+    else
+            result[(*result_len)++] = str[(*i)++];
+
+}
+
+char *cmd_extracter_hp_3(char *result, int *result_len)
+{
+    char *trimmed;
+    char *final;
+    int len;
+
+     result[(*result_len)] = '\0';
+    trimmed = result;
+    while (*trimmed == ' ')
+        trimmed++;
+    final = ft_strdup(trimmed);
+    len = ft_strlen(final);
+    while (len > 0 && final[len-1] == ' ')
+        final[--len] = '\0';
+    free(result);
+    return (final);
+
+}
+
+char *init_cmd_buffer(char *str, int *i, int *result_len, int *quote_state)
+{
+    char *result;
+    
+    *i = 0;
+    *quote_state = 0;
+    *result_len = 0;
     
     if (!str)
         return (NULL);
     
-    // Allocate buffer for result (potentially the same size as input)
+    // Allocate and initialize buffer
     result = (char *)malloc(strlen(str) + 1);
     if (!result)
         return (NULL);
     
-    // Initialize with empty string
     result[0] = '\0';
-    int result_len = 0;
+    *i = skip_redirections(str);
     
-    // Skip initial redirections
-    i = skip_redirections(str);
-    
+    return (result);
+}
+
+char *cmd_extracter(char *str)
+{
+    char *result;
+    int i;
+    int result_len;
+    int quote_state;
+
+    result = init_cmd_buffer(str, &i, &result_len, &quote_state);
+    if (!result)
+        return (NULL);
     while (str[i])
     {
-        // Handle quotes
-        if (str[i] == '\'')
-        {
-            if (quote_state == 0)
-                quote_state = 1;
-            else if (quote_state == 1)
-                quote_state = 0;
-        }
-        else if (str[i] == '\"')
-        {
-            if (quote_state == 0)
-                quote_state = 2;
-            else if (quote_state == 2)
-                quote_state = 0;
-        }
-        
-        // If we encounter a redirection outside quotes
+        cmd_extracter_hp_0(str[i], &quote_state);
         if (quote_state == 0 && (str[i] == '>' || str[i] == '<'))
-        {
-            // Mark end of current argument
-            if (result_len > 0 && result[result_len-1] != ' ')
-                result[result_len++] = ' ';
-                
-            // Skip the redirection character
-            i++;
-            
-            // Skip second redirection character if >> or <<
-            if (str[i] == '>' || str[i] == '<')
-                i++;
-                
-            // Skip spaces
-            while (str[i] && str[i] == ' ')
-                i++;
-                
-            // Skip the filename
-            while (str[i] && str[i] != ' ' && str[i] != '>' && str[i] != '<')
-            {
-                // Handle quoted filenames
-                if (str[i] == '\'' || str[i] == '\"')
-                {
-                    char quote = str[i++];
-                    while (str[i] && str[i] != quote)
-                        i++;
-                    if (str[i])
-                        i++;
-                }
-                else
-                    i++;
-            }
-        }
-        else if (str[i] == ' ')
-        {
-            // Add a single space
-            result[result_len++] = ' ';
-            i++;
-            
-            // Skip multiple spaces
-            while (str[i] && str[i] == ' ')
-                i++;
-        }
+            cmd_extracter_hp_1(str, &quote_state, &i, &result_len, result);
         else
-        {
-            // Copy regular characters
-            result[result_len++] = str[i++];
-        }
+            cmd_extracter_hp_2(str, &i, result, &result_len);
     }
     
-    // Null-terminate the result
-    result[result_len] = '\0';
-    
-    // Trim leading/trailing spaces
-    char *trimmed = result;
-    while (*trimmed == ' ')
-        trimmed++;
-    
-    char *final = ft_strdup(trimmed);
-    
-    // Remove trailing spaces
-    int len = strlen(final);
-    while (len > 0 && final[len-1] == ' ')
-        final[--len] = '\0';
-    
-    free(result);
-    return final;
+    return (cmd_extracter_hp_3(result, &result_len));
 }
 
 
@@ -161,6 +188,7 @@ t_redir *creat_redir_node(int type, char *file)
     if (!tmp)
         return (NULL);
     tmp->file = file;
+    tmp->Ambiguous = 0;
     tmp->type = type;
     tmp->next = NULL;
 
