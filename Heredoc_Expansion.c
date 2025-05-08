@@ -261,15 +261,15 @@ char *extract_delimiter(char *cmd)
     return strdup(start);
 }
 
-int main(void)
+int main(int argc, char *argv[], char *env[])
 {
     char *input;
     char *delimiter;
     char *content;
-    t_env *env = NULL;  // Use your existing env or NULL
+    t_env *env_struc = NULL;  // Use your existing env or NULL
     int exit_status = 42;
     int running = 1;
-    
+    env_maker(env, &env_struc);
     printf("\033[1;33m===== Heredoc Shell Simulator (%s) =====\033[0m\n", "2025-05-08");
     printf("Current User: %s\n\n", "Mr-Crazy8");
     printf("Type commands like: << EOF or << 'EOF' (with quotes)\n");
@@ -301,7 +301,7 @@ int main(void)
             if (delimiter)
             {
                 // Call your heredoc function
-                content = heredoc(delimiter, env, exit_status, delimiter);
+                content = heredoc(delimiter, env_struc, exit_status, delimiter);
                 
                 // Display the content
                 printf("\n--- Heredoc Content ---\n");
