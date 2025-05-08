@@ -1,6 +1,8 @@
 #include "minishell.h"
 
 
+// Add this function to handle empty redirection targets safely
+
 int preprocess_cmd_hp_0(char *input, int *i, int *in_quotes, char *result, int *j)
 {
         if (input[(*i)] == '\'' && *in_quotes != 2)
@@ -81,61 +83,57 @@ char *preprocess_command(char *input)
     return (result[j] = '\0', result);
 }
 
-int main(int argc, char *argv[], char *env[])
-{
+// int main(int argc, char *argv[], char *env[])
+// {
+//     t_token *token_list;
+//     t_env *env_struct = NULL;   //// add to the final main
+//     int exit_status;
+//     char *input;
+//     t_cmd *cmd;
+//     char *preprocessed_input;
 
-    t_token *token_list;
-    t_env *env_struct = NULL;   //// add to the final main
-    int exit_status;
-    char *input;
-    t_cmd *cmd;
-    char *preprocessed_input;
-    
-    // atexit(ff);
-    env_maker(env, &env_struct);
-    token_list = NULL;
-    while (1)
-    {
-        cmd = NULL;
-        input = readline("minishell $> ");
-        if (!input)
-            break;
-        add_history(input);
-        if (check_quotes(input))
-        {
-            // Error message already printed by check_quotes
-            free(input);
-            continue;
-        }
+//     env_maker(env, &env_struct);
+//     token_list = NULL;
+//     while (1)
+//     {
+//         cmd = NULL;
+//         input = readline("minishell $> ");
+//         if (!input)
+//             break;
+//         add_history(input);
+//         if (check_quotes(input))
+//         {
+//             // Error message already printed by check_quotes
+//             free(input);
+//             continue;
+//         }
+//         // Preprocess input to add spaces around redirection operators
+//         preprocessed_input = preprocess_command(input);
+//         free(input);  // Free original input
+//          if (!preprocessed_input)
+//             continue;
+//         token_list = tokin_list_maker(preprocessed_input);
+//         if (token_list && !error_pipi(token_list)  && !check_syntax_errors(token_list))
+//         {
+//             printf("--- TOKENS ---\n");
+//             //process_quotes_for_tokens(token_list, 1);
+//             cmd = parser(token_list);
+//             expand_handle(cmd, env_struct, exit_status);
+//             //debug_print_cmd(cmd);
 
-        // Preprocess input to add spaces around redirection operators
-        preprocessed_input = preprocess_command(input);
-        free(input);  // Free original input
-            
-         if (!preprocessed_input)
-            continue;
-
-
-        token_list = tokin_list_maker(preprocessed_input);
-        if (token_list && !error_pipi(token_list)  && !check_syntax_errors(token_list))
-        {
-            printf("--- TOKENS ---\n");
-            //process_quotes_for_tokens(token_list, 1);
-            cmd = parser(token_list);
-            expand_handle(cmd, env_struct, exit_status);
-            //debug_print_cmd(cmd);
-            if (cmd == NULL) {
-                printf("Warning: Command list is empty after parsing!\n");
-            } else {
-                process_quotes_for_cmd(cmd, 1);
-                print_cmd(cmd);
-            }
-        }   
-        free_token_list(token_list);
-        free(preprocessed_input);
-    if (cmd)
-    free_cmd_list(cmd);
-
-    }
-    return 0;
-}
+//             ambiguous_finder(cmd);
+//             //print_ambiguous_redir_errors(cmd);
+//             if (cmd == NULL) {
+//                 printf("Warning: Command list is empty after parsing!\n");
+//             } else {
+//                 process_quotes_for_cmd(cmd, 1);
+//                 print_cmd(cmd);
+//             }
+//         }   
+//         free_token_list(token_list);
+//         free(preprocessed_input);
+//     if (cmd)
+//         free_cmd_list(cmd);
+//     }
+//     return 0;
+// }

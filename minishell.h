@@ -36,7 +36,10 @@ typedef struct s_redir
 {
     int type;             /* 0:<, 1:>, 2:>>, 3:<< */
     char *file;           /* Filename or heredoc delimiter */
+    int fd;
     int Ambiguous;
+    char    *orig_token;  /* Original token with quotes */
+    char *heredoc_delemter; /* Fully processed delimiter for matching */
     struct s_redir *next; /* Next redirection */
 } t_redir;
 
@@ -207,6 +210,14 @@ t_redir *creat_redir_node(int type, char *file);
 
 
 int	expand_fill_str(t_exp_helper *expand, char *str);
+void print_ambiguous_redir_errors(t_cmd *cmd);
+void ambiguous_finder(t_cmd *cmd);
+
+void	process_string(char *str, t_exp_helper *expand,
+					t_env *env, int exit_status);
+
+
+int open_file(int type, char *file);
 #endif
     
     

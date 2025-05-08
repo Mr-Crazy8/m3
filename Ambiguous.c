@@ -11,6 +11,13 @@ void ambiguous_checker(t_redir *redir)
     tmp = redir;
     while (tmp)
     {
+        if ((tmp->orig_token[0] == '\'' || tmp->orig_token[0] == '\"')
+            && (tmp->orig_token[ft_strlen(tmp->orig_token) - 1] == '\''
+            || tmp->orig_token[ft_strlen(tmp->orig_token) - 1] == '\"'))
+            {
+            tmp = tmp->next;
+            continue;
+            }
         if (!tmp->file || tmp->file[0] == '\0')
             tmp->Ambiguous = 1;
         else if (tmp->file && strchr(tmp->file, ' '))

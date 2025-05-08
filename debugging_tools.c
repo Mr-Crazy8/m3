@@ -54,6 +54,7 @@ void print_cmd(t_cmd *cmd_list)    /// this should be deleted in the final work
             while (tp)
             {
                 printf("type of redir : %d\n", tp->type);  // Added newline
+                printf("file name befor the expanend : %s\n", tp->orig_token);
                 printf("file name : %s\n", tp->file);      // Added newline
                 tp = tp->next;
             }
@@ -64,3 +65,38 @@ void print_cmd(t_cmd *cmd_list)    /// this should be deleted in the final work
     }   
 }
 
+
+
+void print_ambiguous_redir_errors(t_cmd *cmd)
+{
+    t_cmd *tmp;
+    t_redir *redir;
+    char *prefix = "minishell: ";
+    char *suffix = ": ambiguous redirect\n";
+    char *error_msg;
+
+    tmp = cmd;
+    while (tmp)
+    {
+        redir = tmp->redirs;
+        while (redir)
+        {
+            if (redir->Ambiguous)
+            {
+                // Write prefix
+                write(2, prefix, ft_strlen(prefix));
+                
+                // Write original token (or use a placeholder if NULL)
+                if (redir->orig_token)
+                    write(2, redir->orig_token, ft_strlen(redir->orig_token));
+                else
+                    write(2, "$EMPTY", 6);
+                
+                // Write suffix
+                write(2, suffix, ft_strlen(suffix));
+            }
+            redir = redir->next;
+        }
+        tmp = tmp->next;
+    }
+}

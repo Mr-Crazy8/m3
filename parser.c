@@ -188,6 +188,8 @@ t_redir *creat_redir_node(int type, char *file)
     if (!tmp)
         return (NULL);
     tmp->file = file;
+    tmp->orig_token = ft_strdup(file);
+    tmp->fd = open_file(type, file);
     tmp->Ambiguous = 0;
     tmp->type = type;
     tmp->next = NULL;

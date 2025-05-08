@@ -65,10 +65,11 @@ void	process_string(char *str, t_exp_helper *expand,
 {
 	if (!expand_fill_str(expand, str))
 		return ;
-	while (expand->original[expand->i])
+	while (expand->original[expand->i]) {
 		if (!expand_handle_helper0(expand)
 			&& !expand_handle_helper1(expand, exit_status, env))
 			expand->expanded[expand->j++] = expand->original[expand->i++];
+	}
 	expand->expanded[expand->j] = '\0';
 }
 

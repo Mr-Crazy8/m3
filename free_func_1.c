@@ -12,6 +12,8 @@ void free_redirs(t_redir *redir_list)
         next = current->next;
         if (current->file)
             free(current->file);
+        if (current->orig_token)
+            free(current->orig_token);
         free(current);
         current = next;
     }
