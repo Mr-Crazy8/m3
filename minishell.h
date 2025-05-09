@@ -14,6 +14,7 @@ typedef struct s_token
 {
    char *DATA;
    char *TOKIN;
+   char *befor_DATA_expand;
    struct s_token *next;
 } t_token;
 
@@ -49,6 +50,7 @@ typedef struct s_cmd
     char **args;          /* Command args (including cmd as args[0]) */
     t_redir *redirs;      /* Redirections list */
     int pipe_out;         /* 1 if command pipes to next */
+    char **args_befor_quotes_remover; 
     struct s_cmd *next;   /* Next command in pipeline */
 } t_cmd;
 
@@ -126,7 +128,8 @@ int scan_for_expand(char *str);
 char *extranct_valu(char *str);
 int	ft_isalnum(int c);
 int is_valid_var_char(char c);
-void	expand_handle(t_cmd *cmd_list, t_env *env, int exit_status);
+// void	expand_handle(t_cmd *cmd_list, t_env *env, int exit_status);
+void	expand_handle(t_token *token_list, t_env *env, int exit_status);
 char *lookup_variable(char *var_name, t_env *env_struct);
 int has_unquoted_spaces(char *str);
 void split_token(t_token *token);
@@ -218,6 +221,7 @@ void	process_string(char *str, t_exp_helper *expand,
 
 
 int open_file(int type, char *file);
+void file_opener(t_cmd *cmd);
 #endif
     
     

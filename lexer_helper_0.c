@@ -6,7 +6,7 @@
 /*   By: anel-men <anel-men@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/19 11:04:29 by anel-men          #+#    #+#             */
-/*   Updated: 2025/04/19 11:07:34 by anel-men         ###   ########.fr       */
+/*   Updated: 2025/05/09 19:06:09 by anel-men         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ t_token	*creat_token(char *data, char *token_type)
 		free(new_token);
 		return (NULL);
 	}
+	new_token->befor_DATA_expand = NULL;
 	new_token->next = NULL;
 	return (new_token);
 }

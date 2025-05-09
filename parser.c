@@ -189,7 +189,7 @@ t_redir *creat_redir_node(int type, char *file)
         return (NULL);
     tmp->file = file;
     tmp->orig_token = ft_strdup(file);
-    tmp->fd = open_file(type, file);
+    tmp->fd = -1;
     tmp->Ambiguous = 0;
     tmp->type = type;
     tmp->next = NULL;
@@ -197,19 +197,41 @@ t_redir *creat_redir_node(int type, char *file)
     return (tmp);
 }
 
+int check_for_export_case(char *str, char *befor_DATA_expand)
+{
+    char **str_split = ft_split(str, ' ');
+    char **DATA_split = ft_split(befor_DATA_expand , ' ');
 
-t_cmd *creat_cmd_node(char *str, int pipe_out)
+    printf("str_split ========> %s\n", str_split[0]);
+    printf("DATA_split =======> %s\n", DATA_split[0]);
+
+    if (strcmp(str_split[0], "export") == 0)
+    {
+        
+    }
+   return 1;
+}
+
+
+t_cmd *creat_cmd_node(char *str,  t_token *tp,  int pipe_out)
 {
     t_cmd *tmp;
-
+    int k = 1;
+    int status = 0;
     tmp = malloc(sizeof(t_cmd));
     if (!tmp)
         return (NULL);
-    tmp->args = ft_split_q(cmd_extracter(str), ' ');
+    status = check_for_export_case(str, tp->befor_DATA_expand);
+    printf(" befor_DATA_expand ====> %s\n", tp->befor_DATA_expand);
+    // if (status == 1)
+    //     tmp->args = export_case_handler(str, tp->befor_DATA_expand);
+    // else
+        tmp->args = ft_split_q(cmd_extracter(str), ' ');
     if (tmp->args && tmp->args[0])
         tmp->cmd = ft_strdup(tmp->args[0]);
     else
         tmp->cmd = NULL;
+    tmp->args_befor_quotes_remover = ft_split_q(cmd_extracter(str), ' ');
     tmp->redirs = creat_redir_list(str);
     tmp->pipe_out = pipe_out;
     tmp->next = NULL;
@@ -229,9 +251,9 @@ t_cmd *parser(t_token *token_list)
         if (strcmp(tmp->TOKIN, "word_tokin") == 0)
         {
             if (tmp->next && strcmp(tmp->next->TOKIN, "pipe_token") == 0) 
-                cmd_node = creat_cmd_node(tmp->DATA, 1);
+                cmd_node = creat_cmd_node(tmp->DATA,  tmp, 1);
             else 
-                cmd_node = creat_cmd_node(tmp->DATA, 0);
+                cmd_node = creat_cmd_node(tmp->DATA, tmp, 0);
             if (cmd_node)
                 add_cmd_back(&cmd_list, cmd_node);
         }

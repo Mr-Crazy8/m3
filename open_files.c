@@ -26,9 +26,9 @@ int open_file(int type, char *file)
         fd = open(file, O_RDONLY);
         if (fd == -1)
             {
-                write(2, "minishell $>", 13);
+                write(2, "minishell $> ", 13);
                 write(2, file, ft_strlen(file));
-                write(2, ": No such file or directory\n", 29);
+                write(2, " : No such file or directory\n", 29);
             }
     }
     if (type == 1)
@@ -54,3 +54,35 @@ int open_file(int type, char *file)
     }
     return fd;
 }
+
+
+
+
+
+void file_opener(t_cmd *cmd)
+{
+    t_cmd *tmp;
+    t_redir *tp = NULL;
+    int fd;
+    tmp = cmd;
+    while (tmp)
+    {
+        tp = tmp->redirs;
+        while (tp)
+        {   
+            fd = open_file(tp->type, tp->file);
+            if (fd == -1)
+            {
+                tp->fd = fd;
+                break;
+            }
+            else
+            {
+                tp->fd = fd;
+            }
+            tp = tp->next;
+        }
+        tmp = tmp->next;
+    }
+}
+

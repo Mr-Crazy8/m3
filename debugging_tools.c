@@ -34,6 +34,7 @@ void print_cmd(t_cmd *cmd_list)    /// this should be deleted in the final work
 {
     t_cmd *tmp;
     int i = 0;
+    int j = 0;
     tmp = cmd_list;
 
     while (tmp)
@@ -46,6 +47,11 @@ void print_cmd(t_cmd *cmd_list)    /// this should be deleted in the final work
             printf("command args : %s\n", tmp->args[i]);
             i++;
         }
+        while (tmp->args_befor_quotes_remover[j])
+        {
+            printf("args befor quotes remover : %s\n", tmp->args_befor_quotes_remover[j]);
+            j++;
+        }
         if (tmp->redirs)
         {
             t_redir *tp = tmp->redirs;
@@ -56,6 +62,7 @@ void print_cmd(t_cmd *cmd_list)    /// this should be deleted in the final work
                 printf("type of redir : %d\n", tp->type);  // Added newline
                 printf("file name befor the expanend : %s\n", tp->orig_token);
                 printf("file name : %s\n", tp->file);      // Added newline
+                printf("fd for the file : %d\n", tp->fd);
                 tp = tp->next;
             }
         }

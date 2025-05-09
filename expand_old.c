@@ -60,59 +60,35 @@ int	expand_handle_helper1(t_exp_helper *expand, int exit_status, t_env *env)
 	return (0);
 }
 
-void	process_string(char *str, t_exp_helper *expand,
+void	process_token(t_token *tmp, t_exp_helper *expand,
 					t_env *env, int exit_status)
 {
-	if (!expand_fill_str(expand, str))
+	if (!expand_fill(expand, tmp))
 		return ;
-	while (expand->original[expand->i]) {
+	while (expand->original[expand->i])
 		if (!expand_handle_helper0(expand)
 			&& !expand_handle_helper1(expand, exit_status, env))
 			expand->expanded[expand->j++] = expand->original[expand->i++];
-	}
 	expand->expanded[expand->j] = '\0';
+	tmp->befor_DATA_expand = ft_strdup(expand->original);
+	free(tmp->DATA);
+	tmp->DATA = expand->expanded;
 }
 
-void	expand_handle(t_cmd *cmd_list, t_env *env, int exit_status)
+void	expand_handle(t_token *token_list, t_env *env, int exit_status)
 {
-	t_cmd			*current;
+	t_token			*tmp;
 	t_exp_helper	*expand;
-	t_redir			*redir;
-	int				i;
 
 	expand = (t_exp_helper *)malloc(sizeof(t_exp_helper));
 	if (!expand)
 		return ;
-	current = cmd_list;
-	while (current)
+	tmp = token_list;
+	while (tmp)
 	{
-		if (current->cmd)
-		{
-			process_string(current->cmd, expand, env, exit_status);
-			free(current->cmd);
-			current->cmd = expand->expanded;
-		}
-		i = 0;
-		while (current->args && current->args[i])
-		{
-			process_string(current->args[i], expand, env, exit_status);
-			free(current->args[i]);
-			current->args[i] = expand->expanded;
-			i++;
-		}
-		redir = current->redirs;
-		while (redir)
-		{
-			if (redir->file)
-			{
-				process_string(redir->file, expand, env, exit_status);
-				free(redir->file);
-				redir->file = expand->expanded;
-			}
-			redir = redir->next;
-		}
-		current = current->next;
+		if (strcmp(tmp->TOKIN, "word_tokin") == 0)
+			process_token(tmp, expand, env, exit_status);
+		tmp = tmp->next;
 	}
 	free(expand);
 }
-
