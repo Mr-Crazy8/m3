@@ -66,6 +66,10 @@ typedef struct s_exp_helper {
     char *var_value;
     int k;
     int start;
+
+
+    int split_occurred;
+    char **split_words;  
     
 } t_exp_helper;
 
@@ -128,8 +132,8 @@ int scan_for_expand(char *str);
 char *extranct_valu(char *str);
 int	ft_isalnum(int c);
 int is_valid_var_char(char c);
-// void	expand_handle(t_cmd *cmd_list, t_env *env, int exit_status);
-void	expand_handle(t_token *token_list, t_env *env, int exit_status);
+void	expand_handle(t_cmd *cmd_list, t_env *env, int exit_status);
+// void	expand_handle(t_token *token_list, t_env *env, int exit_status);
 char *lookup_variable(char *var_name, t_env *env_struct);
 int has_unquoted_spaces(char *str);
 void split_token(t_token *token);
@@ -171,7 +175,7 @@ void	process_token(t_token *tmp, t_exp_helper *expand,
 char	*ft_itoa(int n);
 int	is_valid_var_char(char c);
 int	expand_fill(t_exp_helper *expand, t_token *tmp);
-char	*lookup_variable(char *var_name, t_env *env_struct);
+// char	*lookup_variable(char *var_name, t_env *env_struct);
     
     t_cmd *parser(t_token *token_list);
     int is_redirection(char *str, int i);
@@ -222,8 +226,16 @@ void	process_string(char *str, t_exp_helper *expand,
 
 int open_file(int type, char *file);
 void file_opener(t_cmd *cmd);
+
+
+char **split_if_needed(char *str);
+void free_string_array(char **array);
+int is_valid_var_char(char c);
+int is_in_assignment(char *str, int pos);
+char	**lookup_variable(char *var_name, t_env *env_struct);
+
 #endif
     
     
     
-    
+     

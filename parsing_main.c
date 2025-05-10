@@ -116,11 +116,11 @@ int main(int argc, char *argv[], char *env[])
 
         if (token_list && !error_pipi(token_list)  && !check_syntax_errors(token_list))
         {
-            expand_handle(token_list, env_struct, exit_status);
+            //expand_handle(token_list, env_struct, exit_status);
             printf("--- TOKENS ---\n");
             //process_quotes_for_tokens(token_list, 1);
             cmd = parser(token_list);
-            // expand_handle(cmd, env_struct, exit_status);
+            expand_handle(cmd, env_struct, exit_status);
             //debug_print_cmd(cmd);
 
             ambiguous_finder(cmd);
