@@ -66,10 +66,6 @@ typedef struct s_exp_helper {
     char *var_value;
     int k;
     int start;
-
-
-    int split_occurred;
-    char **split_words;  
     
 } t_exp_helper;
 
@@ -232,8 +228,10 @@ char **split_if_needed(char *str);
 void free_string_array(char **array);
 int is_valid_var_char(char c);
 int is_in_assignment(char *str, int pos);
-char	**lookup_variable(char *var_name, t_env *env_struct);
-
+char	*lookup_variable(char *var_name, t_env *env_struct);
+int is_special_export_case(t_cmd *cmd);
+void split_args_for_cmd(t_cmd *cmd_list);
+void apply_word_splitting(t_cmd *cmd_list);
 #endif
     
     

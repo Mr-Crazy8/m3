@@ -63,6 +63,7 @@ void print_cmd(t_cmd *cmd_list)    /// this should be deleted in the final work
                 printf("file name befor the expanend : %s\n", tp->orig_token);
                 printf("file name : %s\n", tp->file);      // Added newline
                 printf("fd for the file : %d\n", tp->fd);
+                printf("ambiguous %d\n", tp->Ambiguous);
                 tp = tp->next;
             }
         }

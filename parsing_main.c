@@ -120,9 +120,9 @@ int main(int argc, char *argv[], char *env[])
             printf("--- TOKENS ---\n");
             //process_quotes_for_tokens(token_list, 1);
             cmd = parser(token_list);
+
             expand_handle(cmd, env_struct, exit_status);
             //debug_print_cmd(cmd);
-
             ambiguous_finder(cmd);
             //print_ambiguous_redir_errors(cmd);
             if (cmd == NULL) {

@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-char	**lookup_variable(char *var_name, t_env *env_struct)
+char	*lookup_variable(char *var_name, t_env *env_struct)
 {
 	t_env	*tmp;
 	tmp = env_struct;
@@ -42,10 +42,6 @@ int expand_fill_str(t_exp_helper *expand, char *str)
     expand->i = 0;
     expand->j = 0;
     expand->quote_state = 0;
-    
-    // Initialize word splitting fields
-    expand->split_occurred = 0;
-    expand->split_words = NULL;
     
     return (1);
 }

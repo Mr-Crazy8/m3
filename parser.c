@@ -530,22 +530,17 @@ char **export_case_handler(char *str)
 t_cmd *creat_cmd_node(char *str,  t_token *tp,  int pipe_out)
 {
     t_cmd *tmp;
-    int status = 0;
     tmp = malloc(sizeof(t_cmd));
     if (!tmp)
         return (NULL);
-    status = check_for_export_case(str, tp->befor_DATA_expand);
-    printf("str =============> %s\n", str);
-    printf("status ==========> %d\n", status);
-    // if (status == 1)
-    // {
-    //     printf("str :::::::> %s\n", str);
-    //     tmp->args = export_case_handler(str);
-    //     printf("1\n");
-    // }
-    // else
-    // {
+        printf("sstr         %s\n", str);
         tmp->args = ft_split_q(cmd_extracter(str), ' ');
+        int i = 0;
+        while (tmp->args[i])
+        {
+            printf("tmp->args[%d]         %s\n", i, tmp->args[i]);
+            i++;
+        }
     if (tmp->args && tmp->args[0])
         tmp->cmd = ft_strdup(tmp->args[0]);
     else
