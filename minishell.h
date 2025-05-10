@@ -9,7 +9,7 @@
 #include <stdlib.h> // For malloc
 #include <readline/readline.h>
 #include <readline/history.h>
-
+#include <ctype.h>
 typedef struct s_token
 {
    char *DATA;
