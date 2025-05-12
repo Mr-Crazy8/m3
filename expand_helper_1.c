@@ -19,18 +19,6 @@ char	*lookup_variable(char *var_name, t_env *env_struct)
 }
 
 
-// int	expand_fill_str(t_exp_helper *expand, char *str) old
-// {
-// 	expand->original = str;
-// 	expand->expanded = malloc(strlen(expand->original) * 2 + 1);
-// 	if (!expand->expanded)
-// 		return (0);
-// 	expand->i = 0;
-// 	expand->j = 0;
-// 	expand->quote_state = 0;
-// 	return (1);
-// }
-
 
 int expand_fill_str(t_exp_helper *expand, char *str)
 {

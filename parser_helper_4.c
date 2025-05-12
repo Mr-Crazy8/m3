@@ -28,7 +28,7 @@ t_redir *creat_redir_list_helper0(char *str1, char *str2)
     return (NULL);
 }
 
-t_redir *creat_redir_list(char *str)
+t_redir *creat_redir_list(char *str) //49
 {
     t_redir *tmp_node;
     t_redir *tmp_list;

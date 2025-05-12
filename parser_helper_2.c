@@ -75,7 +75,7 @@ char *redir_extracter(char *str)
     return (result);
 }
 
-static char *process_redir(char *str, int *pos)
+static char *process_redir(char *str, int *pos) // 32
 {
     int start;
     int i;

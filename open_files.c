@@ -20,40 +20,48 @@
 
 int open_file(int type, char *file)
 {
-    int fd = -1;
+    int fd;
+
+    fd = -1;
     if (type == 0)
     {
         fd = open(file, O_RDONLY);
         if (fd == -1)
-            {
-                write(2, "minishell $> ", 13);
-                write(2, file, ft_strlen(file));
-                write(2, " : No such file or directory\n", 29);
-            }
+            print_file_error(file, 0);
     }
     if (type == 1)
     {
         fd = open(file, O_CREAT | O_TRUNC | O_WRONLY, 0644);
         if (fd == -1)
-        {
-            write(2, "minishell $> ", 13);
-            write(2, file, ft_strlen(file));
-            write(2, ": Cannot create or write to file\n", 33);
-        }
+            print_file_error(file, 1);
         
     }
     if (type == 2)
     {
         fd = open(file, O_CREAT | O_APPEND | O_WRONLY, 0644);
         if (fd == -1)
-        {
-            write(2, "minishell $> ", 13);
-            write(2, file, ft_strlen(file));
-            write(2, ": Cannot append to file\n", 24);
-        }
+            print_file_error(file, 2);
     }
     return fd;
 }
+
+
+
+void print_file_error(char *file, int i)
+{
+    write(2, "minishell $> ", 13);
+    write(2, file, ft_strlen(file));
+    if (i == 0)
+        write(2, " : No such file or directory\n", 29);
+    else if (i == 1)
+        write(2, ": Cannot create or write to file\n", 33);
+    else if (i == 2)
+        write(2, ": Cannot append to file\n", 24);
+}
+
+
+
+
 
 
 

@@ -66,6 +66,7 @@ typedef struct s_exp_helper {
     char *var_value;
     int k;
     int start;
+     int var_expanded;
     
 } t_exp_helper;
 
@@ -232,6 +233,7 @@ char	*lookup_variable(char *var_name, t_env *env_struct);
 int is_special_export_case(t_cmd *cmd);
 void split_args_for_cmd(t_cmd *cmd_list);
 void apply_word_splitting(t_cmd *cmd_list);
+void print_file_error(char *file, int i);
 #endif
     
     
